@@ -45,10 +45,13 @@ class SpeedlinkPad:
     """
 
     BUTTON_MAP = {
-        pygame.CONTROLLER_BUTTON_X: 0,  # SPEEDLINK button 1 / X
-        pygame.CONTROLLER_BUTTON_A: 1,  # SPEEDLINK button 2 / A
-        pygame.CONTROLLER_BUTTON_Y: 2,  # SPEEDLINK button 3 / Y
-        pygame.CONTROLLER_BUTTON_B: 3,  # SPEEDLINK button 4 / B
+        # The two large round buttons are the universal menu pair: the left
+        # one confirms and the right one goes back.  The smaller buttons keep
+        # the remaining attacks available during a match.
+        pygame.CONTROLLER_BUTTON_B: 0,  # large right
+        pygame.CONTROLLER_BUTTON_A: 1,  # large left
+        pygame.CONTROLLER_BUTTON_Y: 2,  # small right
+        pygame.CONTROLLER_BUTTON_X: 3,  # small left
     }
 
     def __init__(self, index):

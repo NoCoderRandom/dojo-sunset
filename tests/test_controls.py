@@ -185,8 +185,8 @@ class SpeedlinkPadTests(unittest.TestCase):
         self.pad.joystick = self.raw
 
     def test_four_physical_buttons_map_to_four_actions(self):
-        mapped = [pygame.CONTROLLER_BUTTON_X, pygame.CONTROLLER_BUTTON_A,
-                  pygame.CONTROLLER_BUTTON_Y, pygame.CONTROLLER_BUTTON_B]
+        mapped = [pygame.CONTROLLER_BUTTON_B, pygame.CONTROLLER_BUTTON_A,
+                  pygame.CONTROLLER_BUTTON_Y, pygame.CONTROLLER_BUTTON_X]
         for raw_index, button in enumerate(mapped):
             with self.subTest(raw_index=raw_index):
                 self.raw.buttons = [False] * 4

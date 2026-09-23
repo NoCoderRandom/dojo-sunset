@@ -82,7 +82,8 @@ OpenGL-drivrutin.
 | Back | Växla AI i träning |
 
 SPEEDLINK Competition Pro läses direkt som digital styrspak med fyra fysiska
-knappar. Tryck alla fyra knappar samtidigt för paus. Stödet är helt lokalt i
+knappar. Den vänstra stora knappen väljer i menyer och den högra stora går
+tillbaka. Tryck alla fyra knappar samtidigt för paus. Stödet är helt lokalt i
 spelet och ändrar inga kontrollinställningar i operativsystemet.
 
 Menyer styrs med spak eller styrkors. A bekräftar och B går tillbaka. En

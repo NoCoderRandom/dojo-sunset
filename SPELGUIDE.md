@@ -3,6 +3,8 @@
 Starta **Spela Dojo Sunset** på skrivbordet och anslut en Xbox-kontroll eller
 SPEEDLINK Competition Pro USB. Du väljer kontroll för spelare 1 och 2 under
 **Inställningar → Välj kontroller**.
+På SPEEDLINK väljer den vänstra stora knappen i menyer och den högra stora
+knappen går tillbaka.
 Välj **Träna karate** och sedan teknikskolan för en stegvis introduktion.
 Menyerna styrs med styrkors eller vänster spak; A väljer och B går tillbaka.
 
