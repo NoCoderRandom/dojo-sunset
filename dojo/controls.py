@@ -121,6 +121,8 @@ class Controls:
         self.menu_wait = 0.0
         self.menu_direction = 0
         self.menu_blocked_until_release = False
+        self.speedlink_pause_hold = 0.0
+        self.speedlink_pause_fired = False
         self.instance = None
         self.scan()
 
@@ -273,6 +275,14 @@ class Controls:
             self.held.add('dodge')
         if self.right_trigger > .5:
             self.held.add('power')
+        if isinstance(self.pad, SpeedlinkPad) and self.down('x') and self.down('y'):
+            self.speedlink_pause_hold += dt
+            if self.speedlink_pause_hold >= .5 and not self.speedlink_pause_fired:
+                event_presses.add('start')
+                self.speedlink_pause_fired = True
+        else:
+            self.speedlink_pause_hold = 0.0
+            self.speedlink_pause_fired = False
         self.pressed = (self.held - self.previous) | event_presses
         self.menu_wait = max(0.0, self.menu_wait - dt)
 

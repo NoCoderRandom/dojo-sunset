@@ -301,7 +301,7 @@ class UI:
                 self.text(body, 114, y + 28, 16, PAPER)
             self.text('2 spelare: välj poängmatch eller hälsoduell under Spela match.',
                       114, 575, 15, MUTED)
-            self.text('Tryck A på varsin kontroll. Start eller alla fyra SPEEDLINK-knappar pausar.',
+            self.text('Tryck A på varsin kontroll. Håll båda små SPEEDLINK-knapparna för paus.',
                       114, 600, 15, MUTED)
         else:
             self.page('KARATE • NINJA • SUMO', 'Bruce Pi är obeväpnad. Bara ninjan bär vapen.')
@@ -514,7 +514,7 @@ class UI:
                 state = 'ANSLUT EN XBOX-KONTROLL'
             self.text(state, x + 30, 370, 22, TEAL if ready[index] else PAPER, True)
             self.text(pad.name[:38] if pad.pad else 'Väntar på anslutning…', x + 30, 438, 18, MUTED)
-        self.text('Matchen börjar när båda är klara. Start eller fyra SPEEDLINK-knappar pausar.',
+        self.text('Matchen börjar när båda är klara. Håll båda små SPEEDLINK-knapparna för paus.',
                   640, 573, 19, PAPER, anchor='center')
         self.footer('A: redo', 'B / Start: tillbaka')
 

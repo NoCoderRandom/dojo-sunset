@@ -9,7 +9,7 @@
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Pygame](https://img.shields.io/badge/Pygame-2.6%2B-2E7D32)](https://www.pygame.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-F2C66D.svg)](LICENSE)
-[![Tests: 165](https://img.shields.io/badge/tests-165%20passing-63D8C1)](TESTRAPPORT.md)
+[![Tests: 166](https://img.shields.io/badge/tests-166%20passing-63D8C1)](TESTRAPPORT.md)
 
 ![Dojo Sunset title screen](docs/screenshots/title.png)
 
@@ -83,8 +83,8 @@ OpenGL-drivrutin.
 
 SPEEDLINK Competition Pro läses direkt som digital styrspak med fyra fysiska
 knappar. Den vänstra stora knappen väljer i menyer och den högra stora går
-tillbaka. Tryck alla fyra knappar samtidigt för paus. Stödet är helt lokalt i
-spelet och ändrar inga kontrollinställningar i operativsystemet.
+tillbaka. Håll de två små knapparna samtidigt i en halv sekund för paus. Stödet
+är helt lokalt i spelet och ändrar inga kontrollinställningar i operativsystemet.
 
 Menyer styrs med spak eller styrkors. A bekräftar och B går tillbaka. En
 detaljerad svensk spelguide finns i [SPELGUIDE.md](SPELGUIDE.md).
@@ -123,7 +123,7 @@ Kör ett snabbt grafik- och menyprov:
 python3 main.py --windowed --smoke --mute
 ```
 
-Projektet har 165 automatiserade tester för strid, kontroller, tvåspelarläge,
+Projektet har 166 automatiserade tester för strid, kontroller, tvåspelarläge,
 ljud, lagring, handledning och applikationsflöde. Utförlig information finns i
 [TESTRAPPORT.md](TESTRAPPORT.md).
 

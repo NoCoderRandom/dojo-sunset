@@ -79,7 +79,8 @@ växlar den av/på. Träningen tar inte slut när någon blir nedslagen, och nin
 
 ## Om något känns fel
 
-Start pausar. På SPEEDLINK pausar du genom att trycka alla fyra knappar samtidigt.
+Start pausar. På SPEEDLINK pausar du genom att hålla de två små knapparna
+samtidigt i en halv sekund.
 Därifrån kan du öppna kontrolltestet och se knappar och spakar.
 Start lämnar kontrolltestet; B fungerar där som en vanlig testknapp.
 X, Y, LB och RB spelar upp var sin ljudeffekt så att du kan kontrollera ljudet.

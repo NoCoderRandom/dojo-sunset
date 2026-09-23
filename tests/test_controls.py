@@ -158,6 +158,22 @@ class ControllerTests(unittest.TestCase):
         self.controls.poll(.016)
         self.assertIsNotNone(self.controls.pad)
 
+    def test_holding_both_small_speedlink_buttons_opens_pause_once(self):
+        self.controls.close_pad()
+        raw = FakeCompetitionPro()
+        pad = SpeedlinkPad.__new__(SpeedlinkPad)
+        pad.joystick = raw
+        self.controls.pad = pad
+        self.controls.joystick = raw
+        raw.buttons[1] = True
+        raw.buttons[4] = True
+        self.controls.poll(.25, [])
+        self.assertFalse(self.controls.hit('start'))
+        self.controls.poll(.26, [])
+        self.assertTrue(self.controls.hit('start'))
+        self.controls.poll(.6, [])
+        self.assertFalse(self.controls.hit('start'))
+
 
 class FakeCompetitionPro:
     def __init__(self):
