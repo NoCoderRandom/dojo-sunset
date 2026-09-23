@@ -1,0 +1,71 @@
+{
+  "sources": [
+    {
+      "name": "Blocking Arm With Hand",
+      "author": "mmasonghi",
+      "url": "https://freesound.org/people/mmasonghi/sounds/321810/",
+      "license": "CC0 1.0"
+    },
+    {
+      "name": "Karate Chop.m4a",
+      "author": "ccolbert70Eagles23",
+      "url": "https://freesound.org/people/ccolbert70Eagles23/sounds/423526/",
+      "license": "CC0 1.0"
+    }
+  ],
+  "edits": [
+    {
+      "file": "block.wav",
+      "source": "block.wav",
+      "source_range_seconds": [
+        0.099,
+        0.29
+      ],
+      "analysis": {
+        "duration_ms": 191.02,
+        "peak": 0.72,
+        "first_10_percent_peak_ms": 1.0,
+        "peak_at_ms": 3.9,
+        "rms": 0.0736,
+        "clipped_samples": 0
+      },
+      "sha256": "32e814f362a18134e326db57d37fc93c39b292d14617405f0ee9259645091c45"
+    },
+    {
+      "file": "hit_light.wav",
+      "source": "chop.wav",
+      "source_range_seconds": [
+        0.047,
+        0.145
+      ],
+      "analysis": {
+        "duration_ms": 98.0,
+        "peak": 0.7,
+        "first_10_percent_peak_ms": 1.2,
+        "peak_at_ms": 15.69,
+        "rms": 0.1266,
+        "clipped_samples": 0
+      },
+      "sha256": "4490f958834d1ce40096b76779a3aa39a3cddd327869b4e89538af2593c91dde"
+    },
+    {
+      "file": "hit_heavy.wav",
+      "source": "chop.wav",
+      "source_range_seconds": [
+        0.205,
+        0.505
+      ],
+      "analysis": {
+        "duration_ms": 300.0,
+        "peak": 0.79,
+        "first_10_percent_peak_ms": 0.75,
+        "peak_at_ms": 31.0,
+        "rms": 0.1393,
+        "clipped_samples": 0
+      },
+      "sha256": "4521f3f95fe738adbe18a479021406c51a2ba52f06ce90a5010ee323b51d8f2e"
+    }
+  ],
+  "auditory_review": "Unavailable: agent audio-input capability does not support listening. Waveforms, transients, durations and clipping inspected; do not describe as personally auditioned.",
+  "timing": "Files loaded before play; block/hit playback triggered in the same simulation update as collision."
+}

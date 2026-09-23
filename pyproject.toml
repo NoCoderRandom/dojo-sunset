@@ -1,0 +1,21 @@
+[project]
+name = "dojo-sunset"
+version = "0.2.0"
+description = "Original controller-first 3D karate for Raspberry Pi"
+requires-python = ">=3.11"
+dependencies = ["pygame>=2.6", "PyOpenGL>=3.1", "numpy>=1.24"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+exclude = [".devtools", "userdata"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "B", "SIM"]
+ignore = ["F403", "F405"]
+
+[tool.ruff.lint.per-file-ignores]
+"main.py" = ["E402"]
+"tools/*.py" = ["E402"]
+"tests/test_controls.py" = ["E402"]
+"tests/test_audio.py" = ["E402"]

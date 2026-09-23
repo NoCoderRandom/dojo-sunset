@@ -1,0 +1,68 @@
+# Runtime data and personal files
+userdata/
+*.log
+*.log.*
+*.bak
+*.tmp
+*.swp
+*~
+
+# Secrets and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+credentials*.json
+secrets*.json
+auth*.json
+token*.json
+
+# Private source recordings and their provenance manifest
+assets/audio/source/private/
+assets/audio/private-audio-review.json
+
+# AI assistants, prompts and internal session notes
+.agents/
+.codex/
+.claude/
+.cursor/
+.windsurf/
+.aider*
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+AI_NOTES.md
+PROMPTS.md
+prompts/
+ai-notes/
+RESUME.md
+WORKLOG.md
+Spela Dojo Sunset.desktop
+tools/import_user_audio.py
+
+# Python environments and generated files
+.devtools/
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
