@@ -1,4 +1,4 @@
-"""Process-local Xbox input, with stable player slots and hotplugging."""
+"""Process-local controller input, with stable player slots and hotplugging."""
 from contextlib import suppress
 
 import pygame
@@ -23,19 +23,82 @@ BUTTONS = {
 }
 
 
+def controller_kind(index, joystick=None):
+    """Return the controller family used by Dojo Sunset, without modifying it."""
+    joy = joystick or pygame.joystick.Joystick(index)
+    name = joy.get_name()
+    if 'speedlink' in name.lower() and joy.get_numbuttons() >= 4:
+        return 'speedlink'
+    if controller.is_controller(index):
+        mapped_name = controller.name_forindex(index) or ''
+        if 'xbox' in (name + ' ' + mapped_name).lower():
+            return 'xbox'
+    return None
+
+
+class SpeedlinkPad:
+    """Expose a four-button Competition Pro without changing system mappings.
+
+    The controller's DragonRise USB interface advertises many controls that do
+    not physically exist.  Reading the joystick directly keeps its real four
+    buttons available instead of trusting that misleading SDL gamepad map.
+    """
+
+    BUTTON_MAP = {
+        pygame.CONTROLLER_BUTTON_X: 0,  # SPEEDLINK button 1 / X
+        pygame.CONTROLLER_BUTTON_A: 1,  # SPEEDLINK button 2 / A
+        pygame.CONTROLLER_BUTTON_Y: 2,  # SPEEDLINK button 3 / Y
+        pygame.CONTROLLER_BUTTON_B: 3,  # SPEEDLINK button 4 / B
+    }
+
+    def __init__(self, index):
+        self.joystick = pygame.joystick.Joystick(index)
+
+    def attached(self):
+        return self.joystick.get_init()
+
+    def get_button(self, button):
+        raw_button = self.BUTTON_MAP.get(button)
+        if raw_button is not None:
+            return self.joystick.get_button(raw_button)
+        # There is no Start button.  All four fire buttons is a deliberate,
+        # hard-to-trigger pause gesture that does not affect system settings.
+        if button == pygame.CONTROLLER_BUTTON_START:
+            return all(self.joystick.get_button(index) for index in range(4))
+        return False
+
+    def get_axis(self, axis):
+        if axis == pygame.CONTROLLER_AXIS_LEFTX:
+            return int(self.joystick.get_axis(0) * 32767)
+        if axis == pygame.CONTROLLER_AXIS_LEFTY:
+            return int(self.joystick.get_axis(1) * 32767)
+        return 0
+
+    def rumble(self, low_frequency, high_frequency, duration):
+        return False
+
+    def stop_rumble(self):
+        pass
+
+    def quit(self):
+        self.joystick.quit()
+
+
 
 class Controls:
-    def __init__(self, settings, preferred_instance=None, excluded_instances=None):
+    def __init__(self, settings, preferred_instance=None, excluded_instances=None,
+                 preferred_kind='auto'):
         pygame.joystick.init()
         controller.init()
         self.settings = settings
         self.preferred_instance = preferred_instance
+        self.preferred_kind = preferred_kind
         self.excluded_instances = excluded_instances or (lambda: set())
         self.secondary = None
         self.scan_wait = 0.0
         self.pad = None
         self.joystick = None
-        self.name = 'Xbox-kontroll saknas'
+        self.name = 'Spelkontroll saknas'
         self.held = set()
         self.previous = set()
         self.pressed = set()
@@ -67,7 +130,6 @@ class Controls:
         for index in range(pygame.joystick.get_count()):
             try:
                 joy = pygame.joystick.Joystick(index)
-                name = joy.get_name()
                 guid = joy.get_guid()
                 if guid[8:12] == '5e04' and guid[16:20] == '220b':
                     sdl_has_elite = True
@@ -75,14 +137,16 @@ class Controls:
                     continue
                 if self.preferred_instance is not None and joy.get_instance_id() != self.preferred_instance:
                     continue
-                if controller.is_controller(index) and 'speedlink' not in name.lower():
-                    mapped_name = controller.name_forindex(index) or ''
-                    if 'xbox' in (name + ' ' + mapped_name).lower():
-                        candidates.append((0, index))
+                kind = controller_kind(index, joy)
+                if kind == 'speedlink' and self.preferred_kind in ('auto', 'speedlink'):
+                    candidates.append((1, index, 'speedlink'))
+                elif kind == 'xbox' and self.preferred_kind in ('auto', 'xbox'):
+                    candidates.append((0, index, 'xbox'))
             except pygame.error:
                 continue
         if not candidates:
-            if not sdl_has_elite and self.preferred_instance is None:
+            if (not sdl_has_elite and self.preferred_instance is None
+                    and self.preferred_kind in ('auto', 'xbox')):
                 fallback = find_elite(self.excluded_instances())
                 if fallback:
                     self.close_pad()
@@ -92,18 +156,23 @@ class Controls:
             return
         candidates.sort()
         try:
-            candidate = pygame.joystick.Joystick(candidates[0][1])
+            _, index, pad_type = candidates[0]
+            candidate = pygame.joystick.Joystick(index)
             if candidate.get_instance_id() == self.instance:
                 return
             self.close_pad()
-            self.pad = controller.Controller(candidates[0][1])
-            self.joystick = self.pad.as_joystick()
+            if pad_type == 'speedlink':
+                self.pad = SpeedlinkPad(index)
+                self.joystick = self.pad.joystick
+            else:
+                self.pad = controller.Controller(index)
+                self.joystick = self.pad.as_joystick()
             self.instance = self.joystick.get_instance_id()
             self.name = self.joystick.get_name()
         except (pygame.error, OSError):
             self.pad = None
             self.joystick = None
-            self.name = 'Xbox-kontroll saknas'
+            self.name = 'Spelkontroll saknas'
 
     def close_pad(self):
         if self.pad:
@@ -115,7 +184,7 @@ class Controls:
         self.pad = None
         self.joystick = None
         self.instance = None
-        self.name = 'Xbox-kontroll saknas'
+        self.name = 'Spelkontroll saknas'
 
     def axis(self, axis_id):
         if not self.pad:

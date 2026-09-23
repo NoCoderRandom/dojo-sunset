@@ -7,7 +7,7 @@ import unittest
 
 import pygame
 
-from dojo.controls import Controls
+from dojo.controls import Controls, SpeedlinkPad
 from dojo.storage import DEFAULTS
 from tools.sdl_virtual import VirtualPad
 
@@ -157,6 +157,52 @@ class ControllerTests(unittest.TestCase):
         self.controls.preferred_instance = self.virtual.instance_id
         self.controls.poll(.016)
         self.assertIsNotNone(self.controls.pad)
+
+
+class FakeCompetitionPro:
+    def __init__(self):
+        self.buttons = [False] * 4
+        self.axes = [0.0, 0.0]
+        self.closed = False
+
+    def get_button(self, index):
+        return self.buttons[index]
+
+    def get_axis(self, index):
+        return self.axes[index]
+
+    def get_init(self):
+        return not self.closed
+
+    def quit(self):
+        self.closed = True
+
+
+class SpeedlinkPadTests(unittest.TestCase):
+    def setUp(self):
+        self.raw = FakeCompetitionPro()
+        self.pad = SpeedlinkPad.__new__(SpeedlinkPad)
+        self.pad.joystick = self.raw
+
+    def test_four_physical_buttons_map_to_four_actions(self):
+        mapped = [pygame.CONTROLLER_BUTTON_X, pygame.CONTROLLER_BUTTON_A,
+                  pygame.CONTROLLER_BUTTON_Y, pygame.CONTROLLER_BUTTON_B]
+        for raw_index, button in enumerate(mapped):
+            with self.subTest(raw_index=raw_index):
+                self.raw.buttons = [False] * 4
+                self.raw.buttons[raw_index] = True
+                self.assertTrue(self.pad.get_button(button))
+
+    def test_digital_stick_maps_to_left_axes(self):
+        self.raw.axes = [-1.0, 1.0]
+        self.assertEqual(self.pad.get_axis(pygame.CONTROLLER_AXIS_LEFTX), -32767)
+        self.assertEqual(self.pad.get_axis(pygame.CONTROLLER_AXIS_LEFTY), 32767)
+
+    def test_all_four_buttons_is_pause_gesture(self):
+        self.raw.buttons = [True] * 4
+        self.assertTrue(self.pad.get_button(pygame.CONTROLLER_BUTTON_START))
+        self.raw.buttons[2] = False
+        self.assertFalse(self.pad.get_button(pygame.CONTROLLER_BUTTON_START))
 
 
 if __name__ == '__main__':

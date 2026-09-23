@@ -9,7 +9,7 @@
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Pygame](https://img.shields.io/badge/Pygame-2.6%2B-2E7D32)](https://www.pygame.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-F2C66D.svg)](LICENSE)
-[![Tests: 160](https://img.shields.io/badge/tests-160%20passing-63D8C1)](TESTRAPPORT.md)
+[![Tests: 165](https://img.shields.io/badge/tests-165%20passing-63D8C1)](TESTRAPPORT.md)
 
 ![Dojo Sunset title screen](docs/screenshots/title.png)
 
@@ -26,7 +26,7 @@ och tunga sumobrottare.
 
 - Klassisk poängkarate och hälsodueller
 - Karateresan med sex motståndare: karate, ninja och sumo
-- Lokal tvåspelare med två Xbox-kontroller
+- Lokal tvåspelare med Xbox-kontroller eller SPEEDLINK Competition Pro USB
 - Tolv interaktiva lektioner i Teknikskolan
 - Fri träning mot karate-, ninja- och sumomotståndare
 - Egna animationer, partikeleffekter och bearbetade ljudeffekter
@@ -53,8 +53,10 @@ python -m pip install -e .
 python main.py --windowed
 ```
 
-Anslut en Xbox-kontroll innan du startar. Spelets menyer och fighters styrs med
-kontroll; tangentbordet används bara för `F11` (helskärm) och `F10` (skärmbild).
+Anslut en Xbox-kontroll eller SPEEDLINK Competition Pro USB innan du startar.
+Spelets menyer och fighters styrs med kontroll; tangentbordet används bara för
+`F11` (helskärm) och `F10` (skärmbild). Kontroller väljs under
+**Inställningar → Välj kontroller**.
 På den ursprungliga Raspberry Pi-installationen kan spelet också startas med
 `./start.sh` eller skrivbordsikonen **Spela Dojo Sunset**.
 
@@ -79,6 +81,10 @@ OpenGL-drivrutin.
 | Start | Paus / tillbaka |
 | Back | Växla AI i träning |
 
+SPEEDLINK Competition Pro läses direkt som digital styrspak med fyra fysiska
+knappar. Tryck alla fyra knappar samtidigt för paus. Stödet är helt lokalt i
+spelet och ändrar inga kontrollinställningar i operativsystemet.
+
 Menyer styrs med spak eller styrkors. A bekräftar och B går tillbaka. En
 detaljerad svensk spelguide finns i [SPELGUIDE.md](SPELGUIDE.md).
 
@@ -92,9 +98,9 @@ följer med genom hela resan.
 
 ### Två spelare
 
-Välj **Spela match → 2 spelare** och anslut två Xbox-kontroller via USB eller
-Bluetooth. Båda spelarna trycker A på klarskärmen. Vänskapsmatcher påverkar
-inte rekordtabellen.
+Välj **Spela match → 2 spelare** och anslut två Xbox- eller SPEEDLINK-kontroller.
+Båda spelarna trycker A på klarskärmen. Vänskapsmatcher påverkar inte
+rekordtabellen.
 
 ### Träning och Teknikskolan
 
@@ -116,7 +122,7 @@ Kör ett snabbt grafik- och menyprov:
 python3 main.py --windowed --smoke --mute
 ```
 
-Projektet har 160 automatiserade tester för strid, kontroller, tvåspelarläge,
+Projektet har 165 automatiserade tester för strid, kontroller, tvåspelarläge,
 ljud, lagring, handledning och applikationsflöde. Utförlig information finns i
 [TESTRAPPORT.md](TESTRAPPORT.md).
 

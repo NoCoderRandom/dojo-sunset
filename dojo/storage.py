@@ -16,6 +16,8 @@ DEFAULTS = {
     'deadzone': .22,
     'arena': 0,
     'rules': 0,
+    'controller_p1': 'auto',
+    'controller_p2': 'auto',
 }
 
 
@@ -51,6 +53,9 @@ class Storage:
         self.settings['deadzone'] = max(.12, min(.4, self.settings['deadzone']))
         self.settings['rules'] = max(0, min(1, self.settings['rules']))
         self.settings['arena'] = max(0, min(1, self.settings['arena']))
+        for key in ('controller_p1', 'controller_p2'):
+            if self.settings[key] not in ('auto', 'xbox', 'speedlink'):
+                self.settings[key] = 'auto'
         raw = self.read_json('records.json', [])
         self.records = []
         if isinstance(raw, list):

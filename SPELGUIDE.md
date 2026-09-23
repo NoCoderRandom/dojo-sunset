@@ -1,6 +1,8 @@
 # Kom igång med Dojo Sunset
 
-Starta **Spela Dojo Sunset** på skrivbordet och slå på Xbox-kontrollen.
+Starta **Spela Dojo Sunset** på skrivbordet och anslut en Xbox-kontroll eller
+SPEEDLINK Competition Pro USB. Du väljer kontroll för spelare 1 och 2 under
+**Inställningar → Välj kontroller**.
 Välj **Träna karate** och sedan teknikskolan för en stegvis introduktion.
 Menyerna styrs med styrkors eller vänster spak; A väljer och B går tillbaka.
 
@@ -75,7 +77,8 @@ växlar den av/på. Träningen tar inte slut när någon blir nedslagen, och nin
 
 ## Om något känns fel
 
-Start pausar. Därifrån kan du öppna kontrolltestet och se knappar och spakar.
+Start pausar. På SPEEDLINK pausar du genom att trycka alla fyra knappar samtidigt.
+Därifrån kan du öppna kontrolltestet och se knappar och spakar.
 Start lämnar kontrolltestet; B fungerar där som en vanlig testknapp.
 X, Y, LB och RB spelar upp var sin ljudeffekt så att du kan kontrollera ljudet.
 A spelar ljudet för rundsparken med RB, B nunchaku, upp ropet, ner förlustljudet, vänster missljudet
@@ -89,4 +92,4 @@ spel. EmulationStation och RetroArch använder sina egna inställningar.
 
 Dina rekord sparas i `userdata/records.json` och inställningarna i
 `userdata/settings.json`. Använd Avsluta i spelets meny när du är färdig.
-Fler knappkombinationer och instruktioner för två Xbox-kontroller finns i README.md.
+Fler knappkombinationer och instruktioner för Xbox och SPEEDLINK finns i README.md.

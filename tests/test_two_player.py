@@ -15,6 +15,7 @@ from dojo.app import PLAY_ENTRIES, Application
 from dojo.competition import ClassicMatch
 from dojo.elite_input import ElitePad
 from dojo.model import Command, Match
+from dojo.storage import Storage
 from tools.sdl_virtual import VirtualPad
 
 
@@ -178,6 +179,23 @@ class TwoPlayerTests(unittest.TestCase):
         with patch('dojo.controls.controller.name_forindex', return_value='Other controller'):
             self.app.controls.scan()
         self.assertIsNone(self.app.controls.pad)
+
+    def test_controller_preferences_assign_two_distinct_xbox_pads(self):
+        self.app.storage.settings['controller_p1'] = 'xbox'
+        self.app.storage.settings['controller_p2'] = 'xbox'
+        self.assertTrue(self.app.apply_controller_preferences())
+        self.assertIsNotNone(self.app.controls.pad)
+        self.assertIsNotNone(self.app.controls2.pad)
+        self.assertNotEqual(self.app.controls.instance, self.app.controls2.instance)
+        restored = Storage(Path(self.temp.name))
+        self.assertEqual(restored.settings['controller_p1'], 'xbox')
+        self.assertEqual(restored.settings['controller_p2'], 'xbox')
+
+    def test_unavailable_controller_choice_preserves_active_pads(self):
+        instances = (self.app.controls.instance, self.app.controls2.instance)
+        self.app.storage.settings['controller_p1'] = 'speedlink'
+        self.assertFalse(self.app.apply_controller_preferences())
+        self.assertEqual((self.app.controls.instance, self.app.controls2.instance), instances)
 
     def test_elite_fallback_can_ready_attack_and_disconnect_beside_sdl_xbox(self):
         elite = ElitePad.__new__(ElitePad)

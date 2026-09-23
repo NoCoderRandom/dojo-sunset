@@ -9,7 +9,7 @@ import pygame
 
 from .audio import Audio
 from .competition import ClassicMatch, Tournament, opponent_match
-from .controls import Controls
+from .controls import Controls, controller_kind
 from .input_buffer import InputBuffer
 from .model import Command, Fighter, Match, clamp
 from .renderer import Renderer
@@ -25,6 +25,7 @@ PLAY_ENTRIES = ['1 spelare — Karateresan', '1 spelare — Poängmatch mot CPU'
                 '2 spelare — Hälsoduell', 'Tillbaka']
 TRAIN_ENTRIES = ['Fri träning — karate', 'Teknikskola — tolv lektioner', 'Kontrolltest',
                  'Träna mot ninja', 'Träna mot sumo', 'Tillbaka']
+CONTROLLER_KINDS = ['auto', 'xbox', 'speedlink']
 
 
 class Application:
@@ -35,11 +36,14 @@ class Application:
             self.storage.settings['fullscreen'] = False
         pygame.display.init()
         self.renderer = Renderer(self.storage.settings)
-        self.controls = Controls(self.storage.settings)
+        self.controls = Controls(self.storage.settings,
+                                 preferred_kind=self.storage.settings['controller_p1'])
         self.controls2 = Controls(self.storage.settings,
-                                  excluded_instances=lambda: {self.controls.instance})
+                                  excluded_instances=lambda: {self.controls.instance},
+                                  preferred_kind=self.storage.settings['controller_p2'])
         self.controls.excluded_instances = lambda: {self.controls2.instance}
         self.controls.secondary = self.controls2
+        self.apply_controller_preferences(save=False)
         self.audio = Audio(0 if arguments.mute else self.storage.settings['volume'])
         self.ui = UI()
         self.clock = pygame.time.Clock()
@@ -140,7 +144,7 @@ class Application:
     def resume_match(self):
         if not self.controls.pad or (self.match.two_player and not self.versus_connected()):
             message = ('Anslut båda kontrollerna för att fortsätta.' if self.match.two_player
-                       else 'Anslut din Xbox-kontroll för att fortsätta.')
+                       else 'Anslut din spelkontroll för att fortsätta.')
             self.ui.notify(message, 5)
             return
         self.screen = 'game'
@@ -230,6 +234,8 @@ class Application:
         elif selected == 7:
             settings['rules'] = 1 - settings['rules']
         elif selected == 8:
+            self.open_screen('controller_select', 'options')
+        elif selected == 9:
             self.go_back()
         self.audio.play('menu')
         if not self.storage.save_settings():
@@ -241,12 +247,69 @@ class Application:
             return
         step = self.controls.menu_step()
         if step:
-            self.selected = (self.selected + step) % 9
+            self.selected = (self.selected + step) % 10
             self.audio.play('menu')
         if self.controls.hit('left'):
             self.alter_setting(-1)
         elif self.controls.hit('right') or self.controls.accept():
             self.alter_setting(1)
+
+    def available_controller_kinds(self):
+        kinds = []
+        for index in range(pygame.joystick.get_count()):
+            try:
+                kind = controller_kind(index)
+            except pygame.error:
+                continue
+            if kind:
+                kinds.append(kind)
+        if isinstance(self.controls.instance, str) or isinstance(self.controls2.instance, str):
+            kinds.append('xbox')
+        return kinds
+
+    def apply_controller_preferences(self, save=True):
+        preferences = [self.storage.settings['controller_p1'],
+                       self.storage.settings['controller_p2']]
+        available = self.available_controller_kinds()
+        for kind in ('xbox', 'speedlink'):
+            required = preferences.count(kind)
+            if available.count(kind) < required:
+                if save:
+                    self.ui.notify(f'Inte tillräckligt många {kind.upper()}-kontroller är anslutna.', 5)
+                return False
+        for controls, kind in zip((self.controls, self.controls2), preferences, strict=True):
+            controls.close_pad()
+            controls.preferred_instance = None
+            controls.preferred_kind = kind
+        order = sorted((self.controls, self.controls2),
+                       key=lambda item: item.preferred_kind == 'auto')
+        for controls in order:
+            controls.scan()
+        if save and not self.storage.save_settings():
+            self.ui.notify(self.storage.error)
+        return True
+
+    def handle_controller_select(self):
+        if self.controls.cancel():
+            self.go_back()
+            return
+        step = self.controls.menu_step()
+        if step:
+            self.selected = (self.selected + step) % 4
+            self.audio.play('menu')
+        direction = -1 if self.controls.hit('left') else 1
+        if self.selected < 2 and (self.controls.hit('left') or self.controls.hit('right')
+                                  or self.controls.accept()):
+            key = f'controller_p{self.selected + 1}'
+            current = CONTROLLER_KINDS.index(self.storage.settings[key])
+            self.storage.settings[key] = CONTROLLER_KINDS[(current + direction) % len(CONTROLLER_KINDS)]
+            self.audio.play('menu')
+        elif self.controls.accept():
+            if self.selected == 2:
+                if self.apply_controller_preferences():
+                    self.ui.notify('Kontrollvalet är aktiverat och sparat.', 4)
+            else:
+                self.go_back()
 
     def handle_help(self):
         if self.controls.cancel():
@@ -412,6 +475,8 @@ class Application:
             self.handle_pause()
         elif self.screen == 'options':
             self.handle_options()
+        elif self.screen == 'controller_select':
+            self.handle_controller_select()
         elif self.screen == 'help':
             self.handle_help()
         elif self.screen == 'records':
@@ -582,6 +647,9 @@ class Application:
             self.ui.help(self.help_page)
         elif self.screen == 'options':
             self.ui.options(self.storage.settings, self.selected)
+        elif self.screen == 'controller_select':
+            self.ui.controller_select(self.storage.settings, self.controls, self.controls2,
+                                      self.selected)
         elif self.screen == 'records':
             self.ui.records(self.storage)
         elif self.screen == 'controller':
@@ -628,8 +696,8 @@ class Application:
                     self.smoke()
                 if self.screen == 'game':
                     self.tick_match(dt)
-                elif self.screen in ('title', 'options', 'records', 'quit', 'play_select', 'train_select',
-                                     'versus_ready'):
+                elif self.screen in ('title', 'options', 'controller_select', 'records', 'quit',
+                                     'play_select', 'train_select', 'versus_ready'):
                     self.tick_demo_background(dt)
                 self.draw(dt)
                 self.frame_count += 1

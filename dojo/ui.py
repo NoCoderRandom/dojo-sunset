@@ -301,7 +301,7 @@ class UI:
                 self.text(body, 114, y + 28, 16, PAPER)
             self.text('2 spelare: välj poängmatch eller hälsoduell under Spela match.',
                       114, 575, 15, MUTED)
-            self.text('Tryck A på varsin Xbox-kontroll. Start på valfri kontroll pausar.',
+            self.text('Tryck A på varsin kontroll. Start eller alla fyra SPEEDLINK-knappar pausar.',
                       114, 600, 15, MUTED)
         else:
             self.page('KARATE • NINJA • SUMO', 'Bruce Pi är obeväpnad. Bara ninjan bär vapen.')
@@ -330,6 +330,7 @@ class UI:
             ('Spakens dödzon', f"{round(settings['deadzone'] * 100)} %"),
             ('Helskärm', 'På' if settings['fullscreen'] else 'Av'),
             ('Matchregler', 'Klassisk poängkarate' if settings['rules'] == 0 else 'Hälsoduell'),
+            ('Välj kontroller', 'Öppna'),
             ('Tillbaka', ''),
         ]
         for index, (label, value) in enumerate(rows):
@@ -340,6 +341,28 @@ class UI:
             self.text(label, 142, y + 5, 20, PAPER)
             self.text(value, 1133, y + 5, 20, GOLD, anchor='right')
         self.footer('↑ / ↓  Välj     ← / → eller A: ändra', 'B / Start: tillbaka')
+
+    def controller_select(self, settings, controls, controls2, selected):
+        self.page('VÄLJ KONTROLLER',
+                  'Ändrar bara Dojo Sunset – EmulationStation och RetroArch påverkas inte.')
+        labels = {'auto': 'Automatiskt', 'xbox': 'Xbox', 'speedlink': 'SPEEDLINK (4 knappar)'}
+        rows = [
+            ('Spelare 1', labels[settings['controller_p1']]),
+            ('Spelare 2', labels[settings['controller_p2']]),
+            ('Aktivera och spara', ''),
+            ('Tillbaka', ''),
+        ]
+        for index, (label, value) in enumerate(rows):
+            y = 210 + index * 70
+            if index == selected:
+                pygame.draw.rect(self.surface, (*GOLD, 38), (180, y - 8, 920, 54), border_radius=7)
+                self.text('›', 192, y - 7, 30, GOLD, True)
+            self.text(label, 235, y, 23, PAPER)
+            self.text(value, 1050, y, 21, GOLD, anchor='right')
+        self.text('AKTIV NU', 235, 515, 14, MUTED, True)
+        self.text('Spelare 1: ' + controls.name, 235, 548, 18, PAPER)
+        self.text('Spelare 2: ' + controls2.name, 235, 579, 18, PAPER)
+        self.footer('↑ / ↓  Välj     ← / → eller A: byt', 'Välj Aktivera för att använda valet')
 
     def records(self, storage):
         self.page('REKORDTAVLAN', 'Matchresultat sparas lokalt. Träning räknas inte som rekord.')
@@ -464,9 +487,9 @@ class UI:
                  'Två ronder vinner matchen. 30 sekunder per rond.'),
                 ('HÄLSODUELL', 'Längre, sammanhängande fighter.',
                  'Töm motståndarens hälsa. Bäst av tre ronder.'),
-                ('2 SPELARE • POÄNG', 'Två Xbox-kontroller, en egen fighter var.',
+                ('2 SPELARE • POÄNG', 'Två kontroller, en egen fighter var.',
                  'Två hela poäng vinner ronden. Bäst av tre.'),
-                ('2 SPELARE • HÄLSA', 'Utmana en vän med två Xbox-kontroller.',
+                ('2 SPELARE • HÄLSA', 'Utmana en vän med två kontroller.',
                  'Töm motståndarens hälsa. Bäst av tre ronder.'),
                 ('HUVUDMENYN', 'Tillbaka till Dojo Sunset.', ''),
             ]
@@ -480,7 +503,7 @@ class UI:
 
     def versus_ready(self, controls, ready, rules):
         rule = 'Poängmatch' if rules == 0 else 'Hälsoduell'
-        self.page('2 SPELARE', rule + ' • Tryck A på varsin Xbox-kontroll.')
+        self.page('2 SPELARE', rule + ' • Tryck A på varsin kontroll.')
         for index, pad in enumerate(controls):
             x = 110 + index * 550
             self.panel((x, 220, 510, 310), 225)
@@ -491,7 +514,7 @@ class UI:
                 state = 'ANSLUT EN XBOX-KONTROLL'
             self.text(state, x + 30, 370, 22, TEAL if ready[index] else PAPER, True)
             self.text(pad.name[:38] if pad.pad else 'Väntar på anslutning…', x + 30, 438, 18, MUTED)
-        self.text('Matchen börjar när båda är klara. Start på valfri kontroll pausar.',
+        self.text('Matchen börjar när båda är klara. Start eller fyra SPEEDLINK-knappar pausar.',
                   640, 573, 19, PAPER, anchor='center')
         self.footer('A: redo', 'B / Start: tillbaka')
 
