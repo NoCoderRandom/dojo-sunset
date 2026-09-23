@@ -96,7 +96,10 @@ class UI:
     def connection(self, controls, x=50, y=34):
         connected = bool(controls.pad)
         pygame.draw.circle(self.surface, TEAL if connected else GOLD, (x + 5, y + 9), 4)
-        name = 'XBOX ANSLUTEN' if connected else 'ANSLUT EN XBOX-KONTROLL'
+        if connected:
+            name = 'SPEEDLINK ANSLUTEN' if controls.is_speedlink else 'XBOX ANSLUTEN'
+        else:
+            name = 'ANSLUT EN SPELKONTROLL'
         if len(name) > 39:
             name = name[:36] + '...'
         self.text(name, x + 18, y, 14, MUTED)
@@ -125,8 +128,12 @@ class UI:
         self.panel((820, 46, 407, 75), 165)
         self.text('KLASSISK KÄNSLA. EN NY ARENA.', 1024, 61, 16, PAPER, True, 'center')
         self.text('Karate • Ninja • Sumo', 1024, 89, 14, MUTED, anchor='center')
-        self.footer('Styrspak / styrkors: välj     A: starta',
-                    'Start: tillbaka     F11: helskärm')
+        if controls.is_speedlink:
+            self.footer('Styrspak: välj     Vänster stor: starta',
+                        'Höger stor: tillbaka     F11: helskärm')
+        else:
+            self.footer('Styrspak / styrkors: välj     A: starta',
+                        'Start: tillbaka     F11: helskärm')
 
     def health_bar(self, fighter, x, y, width, mirrored=False):
         self.text(fighter.name, x + width if mirrored else x, y - 32, 24,
@@ -187,20 +194,35 @@ class UI:
         self.text(clock_text, 640, 51, 48, PAPER, True, 'center')
         self.text('BÄST AV TRE' if not match.practice else 'FRIA FÖRSÖK', 640, 116, 12, MUTED, anchor='center')
         self.panel((28, 620, 1224, 82), 214)
-        actions = [('X', 'SLAG', BLUE), ('Y', 'RAKT SLAG', GOLD),
-                   ('A', 'FRONTSPARK', TEAL), ('B', 'KULLERBYTTA', RED)]
+        if controls.is_speedlink:
+            actions = [('LV', 'SLAG', BLUE), ('LH', 'RAKT SLAG', GOLD),
+                       ('SV', 'FRONTSPARK', TEAL), ('SH', 'KULLERBYTTA', RED)]
+        else:
+            actions = [('X', 'SLAG', BLUE), ('Y', 'RAKT SLAG', GOLD),
+                       ('A', 'FRONTSPARK', TEAL), ('B', 'KULLERBYTTA', RED)]
         x = 50
         for button, label, tint in actions:
             self.button(button, x + 15, 643, tint, True)
             self.text(label, x + 36, 633, 14, PAPER)
             x += 193
-        self.text('LB  BLOCK     RB  RUNDSPARK', 845, 633, 14, PAPER)
-        self.text('Ner + B / RB: LEGSWEEP     Upp + B: HÖG SPARK     RT: HOPPSPARK',
-                  50, 674, 14, MUTED)
-        self.text('Start: paus', 1225, 674, 14, MUTED, anchor='right')
+        if controls.is_speedlink:
+            if match.practice:
+                self.text('Stora ihop: BLOCK (↓ lågt)   •   utåt + SV: RUNDSPARK',
+                          810, 633, 12, PAPER)
+                self.text('↓+SH svep  •  ↑+SH hög  •  ↑+SV hopp  •  LH+SH undan  •  små ihop: paus',
+                          50, 674, 12, MUTED)
+            else:
+                self.text('SPEEDLINK • Spela träning för att lära dig alla kombinationer',
+                          640, 674, 14, MUTED, anchor='center')
+        else:
+            self.text('LB  BLOCK     RB  RUNDSPARK', 845, 633, 14, PAPER)
+            self.text('Ner + B / RB: LEGSWEEP     Upp + B: HÖG SPARK     RT: HOPPSPARK',
+                      50, 674, 14, MUTED)
+            self.text('Start: paus', 1225, 674, 14, MUTED, anchor='right')
         if match.practice:
             mode = 'AI PÅ' if match.practice_ai else 'STILLA MOTSTÅNDARE'
-            self.pill('BACK: ' + mode, 43, 172, TEAL)
+            label = ('AI: ' if controls.is_speedlink else 'BACK: ') + mode
+            self.pill(label, 43, 172, TEAL)
         if match.enemy.archetype == 'ninja':
             self.pill(f'NINJA • {match.enemy.stars} KASTSTJÄRNOR', 915, 171, BLUE)
             if match.practice:
@@ -266,21 +288,38 @@ class UI:
         self.menu(entries, selected, 438, 283, 404, 51)
         self.footer('A: välj', 'B / Start: fortsätt')
 
-    def help(self, page):
+    def help(self, page, controls):
+        speedlink = controls.is_speedlink
         if page == 0:
-            self.page('DIN XBOX-KONTROLL', 'Alla menyer går att styra utan tangentbord.')
-            rows = [
-                ('Vänster spak / styrkors', 'Rör dig. Ner: huka. Upp: hoppa.'),
-                ('X', 'Snabbt slag. Ner + X eller Y: hukslag.'),
-                ('Y', 'Kraftigt rakt slag — gyaku zuki'),
-                ('A', 'Frontspark — mae geri. Ner + A: låg spark.'),
-                ('B', 'Kullerbytta framåt — snabb undanmanöver'),
-                ('Upp + B', 'Hög spark — jodan geri'),
-                ('Ner + B eller Ner + RB', 'Legsweep — ashi barai'),
-                ('RB / RT', 'RB: roterande rundspark. RT: hoppspark.'),
-                ('LB / LT', 'LB: blockera. Ner + LB: lågt block. LT: undanmanöver.'),
-                ('Start / Back', 'Start: paus. Back: växla träningsmotståndarens AI.'),
-            ]
+            if speedlink:
+                self.page('DIN SPEEDLINK-JOYSTICK',
+                          'Stor vänster väljer. Stor höger går tillbaka i menyer.')
+                rows = [
+                    ('Styrspak', 'Rör dig. Ner: huka. Upp: hoppa.'),
+                    ('Liten vänster', 'Snabbt slag.'),
+                    ('Liten höger', 'Kraftigt rakt slag — gyaku zuki.'),
+                    ('Stor vänster', 'Frontspark — mae geri. Ner ger låg spark.'),
+                    ('Stor höger', 'Kullerbytta. Upp ger hög spark, ner ger svep.'),
+                    ('Utåt + stor vänster', 'Rundspark: vänster spelare drar vänster, höger drar höger.'),
+                    ('Upp + stor vänster', 'Hoppspark — tobi geri.'),
+                    ('Båda stora', 'Blockera. Håll även ner för lågt block.'),
+                    ('Liten höger + stor höger', 'Undanmanöver bakåt.'),
+                    ('Håll båda små', 'Pausmeny — där kan du lämna träningen.'),
+                ]
+            else:
+                self.page('DIN XBOX-KONTROLL', 'Alla menyer går att styra utan tangentbord.')
+                rows = [
+                    ('Vänster spak / styrkors', 'Rör dig. Ner: huka. Upp: hoppa.'),
+                    ('X', 'Snabbt slag. Ner + X eller Y: hukslag.'),
+                    ('Y', 'Kraftigt rakt slag — gyaku zuki'),
+                    ('A', 'Frontspark — mae geri. Ner + A: låg spark.'),
+                    ('B', 'Kullerbytta framåt — snabb undanmanöver'),
+                    ('Upp + B', 'Hög spark — jodan geri'),
+                    ('Ner + B eller Ner + RB', 'Legsweep — ashi barai'),
+                    ('RB / RT', 'RB: roterande rundspark. RT: hoppspark.'),
+                    ('LB / LT', 'LB: blockera. Ner + LB: lågt block. LT: undanmanöver.'),
+                    ('Start / Back', 'Start: paus. Back: växla träningsmotståndarens AI.'),
+                ]
             for index, (button, description) in enumerate(rows):
                 y = 187 + index * 40
                 self.text(button, 114, y, 16, GOLD, True)
@@ -293,7 +332,9 @@ class UI:
                 ('03  SKYDDA RÄTT HÖJD', 'Stående block stoppar högt och mitt. Huka + block skyddar benen.'),
                 ('04  SPARA UTHÅLLIGHET', 'Den gula mätaren behövs för attacker, block och undanmanövrer.'),
                 ('05  KLASSISK POÄNGKARATE', 'Två poäng vinner ronden. Två ronder ger seger. Varje rond varar 30 sekunder.'),
-                ('06  TRÄNA UTAN PRESS', 'Träningsläget saknar tidsgräns. Back växlar mellan stilla och aktiv AI.'),
+                ('06  TRÄNA UTAN PRESS',
+                 ('Träningsläget saknar tidsgräns.' if speedlink else
+                  'Träningsläget saknar tidsgräns. Back växlar mellan stilla och aktiv AI.')),
             ]
             for index, (heading, body) in enumerate(tips):
                 y = 188 + index * 62
@@ -301,13 +342,19 @@ class UI:
                 self.text(body, 114, y + 28, 16, PAPER)
             self.text('2 spelare: välj poängmatch eller hälsoduell under Spela match.',
                       114, 575, 15, MUTED)
-            self.text('Tryck A på varsin kontroll. Håll båda små SPEEDLINK-knapparna för paus.',
+            ready_text = ('Tryck vänster stor på varsin kontroll. Håll båda små för paus.'
+                          if speedlink else
+                          'Tryck A på varsin kontroll. Start på valfri kontroll pausar.')
+            self.text(ready_text,
                       114, 600, 15, MUTED)
         else:
             self.page('KARATE • NINJA • SUMO', 'Bruce Pi är obeväpnad. Bara ninjan bär vapen.')
             tips = [
                 ('ETAPP 1–2: KARATE', 'Klassiska poängmatcher. Två hela poäng vinner en rond.'),
-                ('ETAPP 3–4: NINJA', 'Hälsoduell. Huka under nunchaku och stjärnor, eller håll LB.'),
+                ('ETAPP 3–4: NINJA',
+                 ('Huka under nunchaku och stjärnor, eller håll båda stora.'
+                  if speedlink else
+                  'Hälsoduell. Huka under nunchaku och stjärnor, eller håll LB.')),
                 ('FYRA KASTSTJÄRNOR', 'Ninjan laddar kastet synligt och har fyra stjärnor per rond.'),
                 ('ETAPP 5–6: SUMO', 'Tung motståndare. Hoppa över stampen och kontra efter rusningen.'),
                 ('ÖVA FÖRST', 'Träna mot ninja eller sumo direkt från träningsmenyn.'),
@@ -317,7 +364,8 @@ class UI:
                 y = 188 + index * 67
                 self.text(heading, 114, y, 18, GOLD, True)
                 self.text(body, 114, y + 28, 16, PAPER)
-        self.footer(f'← / →  Byt sida   {page + 1} / 3', 'B / Start: tillbaka')
+        back = 'Stor höger: tillbaka' if speedlink else 'B / Start: tillbaka'
+        self.footer(f'← / →  Byt sida   {page + 1} / 3', back)
 
     def options(self, settings, selected):
         self.page('INSTÄLLNINGAR', 'Gäller bara Dojo Sunset. Sparas automatiskt i spelets mapp.')
@@ -397,20 +445,32 @@ class UI:
         self.text('VÄNSTER SPAK', center_x, 490, 16, MUTED, anchor='center')
         self.text(f"X {diagnostic['left_x']:+.2f}   Y {diagnostic['left_y']:+.2f}",
                   center_x, 520, 18, PAPER, anchor='center')
+        labels = ({'y': 'LH', 'x': 'LV', 'b': 'SH', 'a': 'SV'}
+                  if controls.is_speedlink else
+                  {'y': 'Y', 'x': 'X', 'b': 'B', 'a': 'A'})
         positions = [('y', 933, 300, GOLD), ('x', 870, 363, BLUE),
                      ('b', 996, 363, RED), ('a', 933, 426, TEAL)]
         for name, x, y, tint in positions:
             if name in diagnostic['buttons']:
                 pygame.draw.circle(self.surface, PAPER, (x, y), 30, 3)
-            self.button(name.upper(), x, y, tint)
-        for index, name in enumerate(('lb', 'rb', 'back', 'start')):
-            tint = GOLD if name in diagnostic['buttons'] else MUTED
-            self.pill(name.upper(), 683 + index * 110, 231, tint)
-        self.text(f"LT  {diagnostic['lt']:.2f}        RT  {diagnostic['rt']:.2f}", 800, 500, 22, PAPER)
+            self.button(labels[name], x, y, tint)
+        if controls.is_speedlink:
+            self.text('LV/LH = små   •   SV/SH = stora', 800, 231, 16, GOLD)
+            self.text('Utåt + SV: rundspark   •   håll LV + LH: paus', 800, 500, 17, PAPER)
+        else:
+            for index, name in enumerate(('lb', 'rb', 'back', 'start')):
+                tint = GOLD if name in diagnostic['buttons'] else MUTED
+                self.pill(name.upper(), 683 + index * 110, 231, tint)
+            self.text(f"LT  {diagnostic['lt']:.2f}        RT  {diagnostic['rt']:.2f}",
+                      800, 500, 22, PAPER)
         self.text('Aktiva: ' + ', '.join(diagnostic['buttons']), 115, 575, 16, GOLD)
         self.text('A: roundkick • B: nunchaku • ↑: rop • ↓: förlust • ←: miss • →: karatehugg',
                   115, 611, 14, MUTED)
-        self.footer('Ljudprov: X lätt träff • Y tung träff • LB block • RB sving', 'Start: tillbaka')
+        if controls.is_speedlink:
+            self.footer('Ljudprov: små och stora knappar', 'Höger stor: tillbaka')
+        else:
+            self.footer('Ljudprov: X lätt träff • Y tung träff • LB block • RB sving',
+                        'Start: tillbaka')
 
     def result(self, match, entries, selected, saved, tournament=None):
         won = match.winner is match.player
@@ -518,16 +578,36 @@ class UI:
                   640, 573, 19, PAPER, anchor='center')
         self.footer('A: redo', 'B / Start: tillbaka')
 
-    def tutorial(self, tutorial):
+    def tutorial(self, tutorial, controls):
         self.panel((28, 167, 1224, 98), 238, True)
         lesson = tutorial.lesson
+        speedlink_instructions = (
+            'Gå åt båda hållen med styrspaken.',
+            'Gå nära och träffa med vänster lilla knappen.',
+            'Träffa med höger lilla knappen.',
+            'Träffa två gånger med vänster stora knappen.',
+            'Tryck höger stora tre gånger för att rulla framåt.',
+            'Håll ner och tryck höger stora för att svepa undan benen.',
+            'Håll upp och tryck höger stora för en hög spark.',
+            'Håll båda stora knapparna för att blockera.',
+            'Håll ner och båda stora knapparna för lågt block.',
+            'Håll upp och tryck vänster stora för en hoppspark.',
+            'Dra spaken utåt och tryck vänster stora för en roterande rundspark.',
+            'Tryck höger lilla och höger stora samtidigt för att glida bakåt.',
+        )
+        instruction = (speedlink_instructions[tutorial.index]
+                       if controls.is_speedlink else lesson.instruction)
         self.text(lesson.title, 50, 181, 20, GOLD, True)
-        self.text(lesson.instruction, 50, 217, 18, PAPER)
+        self.text(instruction, 50, 217, 18, PAPER)
         count = f'{tutorial.progress} / {lesson.required}'
         self.text(count, 1223, 188, 28, TEAL, True, 'right')
-        self.text('Back: nästa lektion', 1222, 238, 12, MUTED, anchor='right')
+        next_text = ('Vänster stor: nästa efter godkänt'
+                     if controls.is_speedlink else 'Back: nästa lektion')
+        self.text(next_text, 1222, 238, 12, MUTED, anchor='right')
         if tutorial.lesson_done:
-            self.banner('BRA JOBBAT!', 'Tryck A för nästa lektion.')
+            prompt = ('Tryck vänster stora för nästa lektion.'
+                      if controls.is_speedlink else 'Tryck A för nästa lektion.')
+            self.banner('BRA JOBBAT!', prompt)
 
     def tournament_badge(self, tournament):
         belt = tournament.belt

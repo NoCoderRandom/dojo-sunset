@@ -174,6 +174,47 @@ class ControllerTests(unittest.TestCase):
         self.controls.poll(.6, [])
         self.assertFalse(self.controls.hit('start'))
 
+    def test_speedlink_outward_and_large_left_performs_spin_kick(self):
+        self.controls.close_pad()
+        raw = FakeCompetitionPro()
+        pad = SpeedlinkPad.__new__(SpeedlinkPad)
+        pad.joystick = raw
+        self.controls.pad = pad
+        self.controls.joystick = raw
+        raw.axes[0] = -1
+        raw.buttons[3] = True
+        self.controls.poll(.016, [])
+        self.assertEqual(self.controls.command().attack, 'spin_kick')
+
+        raw.buttons[3] = False
+        self.controls.poll(.016, [])
+        self.controls.outward_direction = 'right'
+        raw.axes[0] = 1
+        raw.buttons[3] = True
+        self.controls.poll(.016, [])
+        self.assertEqual(self.controls.command().attack, 'spin_kick')
+
+    def test_speedlink_button_chords_cover_guard_and_dodge(self):
+        self.controls.close_pad()
+        raw = FakeCompetitionPro()
+        pad = SpeedlinkPad.__new__(SpeedlinkPad)
+        pad.joystick = raw
+        self.controls.pad = pad
+        self.controls.joystick = raw
+        raw.buttons[0] = True
+        raw.buttons[3] = True
+        self.controls.poll(.016, [])
+        command = self.controls.command()
+        self.assertTrue(command.guard)
+        self.assertEqual(command.attack, '')
+
+        raw.buttons = [False] * 5
+        self.controls.poll(.016, [])
+        raw.buttons[0] = True
+        raw.buttons[1] = True
+        self.controls.poll(.016, [])
+        self.assertTrue(self.controls.command().dodge)
+
 
 class FakeCompetitionPro:
     def __init__(self):

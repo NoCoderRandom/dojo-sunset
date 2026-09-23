@@ -40,7 +40,8 @@ class Application:
                                  preferred_kind=self.storage.settings['controller_p1'])
         self.controls2 = Controls(self.storage.settings,
                                   excluded_instances=lambda: {self.controls.instance},
-                                  preferred_kind=self.storage.settings['controller_p2'])
+                                  preferred_kind=self.storage.settings['controller_p2'],
+                                  outward_direction='right')
         self.controls.excluded_instances = lambda: {self.controls2.instance}
         self.controls.secondary = self.controls2
         self.apply_controller_preferences(save=False)
@@ -483,7 +484,8 @@ class Application:
             if self.controls.cancel() or self.controls.accept():
                 self.go_back()
         elif self.screen == 'controller':
-            if self.controls.hit('start'):
+            if self.controls.hit('start') or (
+                    self.controls.is_speedlink and self.controls.hit('b')):
                 self.go_back()
             elif self.controls.hit('x'):
                 self.audio.play('hit_light')
@@ -637,14 +639,14 @@ class Application:
             self.ui.hud(self.match, self.controls)
             self.ui.impact_labels(self.match, self.renderer)
             if self.tutorial:
-                self.ui.tutorial(self.tutorial)
+                self.ui.tutorial(self.tutorial, self.controls)
             elif self.tournament:
                 self.ui.tournament_badge(self.tournament)
         elif self.screen == 'pause':
             self.ui.hud(self.match, self.controls)
             self.ui.pause(PAUSE_ENTRIES, self.selected)
         elif self.screen == 'help':
-            self.ui.help(self.help_page)
+            self.ui.help(self.help_page, self.controls)
         elif self.screen == 'options':
             self.ui.options(self.storage.settings, self.selected)
         elif self.screen == 'controller_select':

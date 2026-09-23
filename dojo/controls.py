@@ -91,12 +91,13 @@ class SpeedlinkPad:
 
 class Controls:
     def __init__(self, settings, preferred_instance=None, excluded_instances=None,
-                 preferred_kind='auto'):
+                 preferred_kind='auto', outward_direction='left'):
         pygame.joystick.init()
         controller.init()
         self.settings = settings
         self.preferred_instance = preferred_instance
         self.preferred_kind = preferred_kind
+        self.outward_direction = outward_direction
         self.excluded_instances = excluded_instances or (lambda: set())
         self.secondary = None
         self.scan_wait = 0.0
@@ -325,10 +326,19 @@ class Controls:
         result = Command()
         result.move = self.digital_x if self.digital_direction_active else self.axis_x
         result.crouch = self.down('down')
-        result.guard = self.down('lb')
-        result.dodge = self.hit('dodge')
+        speedlink = self.is_speedlink
+        both_large = speedlink and self.down('a') and self.down('b')
+        spin_chord = speedlink and self.down(self.outward_direction) and self.down('a')
+        dodge_chord = speedlink and self.down('b') and self.down('y')
+        result.guard = self.down('lb') or both_large
+        result.dodge = self.hit('dodge') or (
+            dodge_chord and (self.hit('b') or self.hit('y')))
         result.jump = self.hit('up') or self.hit('jump')
-        if self.hit('x'):
+        if spin_chord and (self.hit('a') or self.hit(self.outward_direction)):
+            result.attack = 'spin_kick'
+        elif both_large or dodge_chord:
+            pass
+        elif self.hit('x'):
             result.attack = 'jab'
         elif self.hit('y'):
             result.attack = 'cross'
@@ -364,6 +374,10 @@ class Controls:
             'rt': round(self.right_trigger, 2),
             'buttons': sorted(self.held),
         }
+
+    @property
+    def is_speedlink(self):
+        return isinstance(getattr(self, 'pad', None), SpeedlinkPad)
 
     def close(self):
         if self.secondary:

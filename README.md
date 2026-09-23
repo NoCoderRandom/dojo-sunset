@@ -9,7 +9,7 @@
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Pygame](https://img.shields.io/badge/Pygame-2.6%2B-2E7D32)](https://www.pygame.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-F2C66D.svg)](LICENSE)
-[![Tests: 166](https://img.shields.io/badge/tests-166%20passing-63D8C1)](TESTRAPPORT.md)
+[![Tests: 168](https://img.shields.io/badge/tests-168%20passing-63D8C1)](TESTRAPPORT.md)
 
 ![Dojo Sunset title screen](docs/screenshots/title.png)
 
@@ -86,6 +86,11 @@ knappar. Den vänstra stora knappen väljer i menyer och den högra stora går
 tillbaka. Håll de två små knapparna samtidigt i en halv sekund för paus. Stödet
 är helt lokalt i spelet och ändrar inga kontrollinställningar i operativsystemet.
 
+SPEEDLINK visar en egen rörelseguide i spelet. Bland annat görs den roterande
+rundsparken med **spaken utåt + vänster stora knappen**: spelaren till vänster
+drar åt vänster och spelaren till höger drar åt höger. Xbox-guiden och dess
+ordinarie RB/LB/LT/RT-mappning visas oförändrad när en Xbox-kontroll används.
+
 Menyer styrs med spak eller styrkors. A bekräftar och B går tillbaka. En
 detaljerad svensk spelguide finns i [SPELGUIDE.md](SPELGUIDE.md).
 
@@ -123,7 +128,7 @@ Kör ett snabbt grafik- och menyprov:
 python3 main.py --windowed --smoke --mute
 ```
 
-Projektet har 166 automatiserade tester för strid, kontroller, tvåspelarläge,
+Projektet har 168 automatiserade tester för strid, kontroller, tvåspelarläge,
 ljud, lagring, handledning och applikationsflöde. Utförlig information finns i
 [TESTRAPPORT.md](TESTRAPPORT.md).
 

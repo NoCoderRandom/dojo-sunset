@@ -5,6 +5,11 @@ SPEEDLINK Competition Pro USB. Du väljer kontroll för spelare 1 och 2 under
 **Inställningar → Välj kontroller**.
 På SPEEDLINK väljer den vänstra stora knappen i menyer och den högra stora
 knappen går tillbaka.
+
+SPEEDLINK har en egen rörelseguide inne i spelet. Roterande rundspark görs med
+spaken utåt + vänster stora knappen: vänster spelare drar spaken åt vänster och
+höger spelare åt höger. Håll båda stora för blockering och håll även ner för
+lågt block.
 Välj **Träna karate** och sedan teknikskolan för en stegvis introduktion.
 Menyerna styrs med styrkors eller vänster spak; A väljer och B går tillbaka.
 
