@@ -161,7 +161,7 @@ class ControllerTests(unittest.TestCase):
 
 class FakeCompetitionPro:
     def __init__(self):
-        self.buttons = [False] * 4
+        self.buttons = [False] * 5
         self.axes = [0.0, 0.0]
         self.closed = False
 
@@ -185,11 +185,11 @@ class SpeedlinkPadTests(unittest.TestCase):
         self.pad.joystick = self.raw
 
     def test_four_physical_buttons_map_to_four_actions(self):
-        mapped = [pygame.CONTROLLER_BUTTON_B, pygame.CONTROLLER_BUTTON_A,
-                  pygame.CONTROLLER_BUTTON_Y, pygame.CONTROLLER_BUTTON_X]
-        for raw_index, button in enumerate(mapped):
+        mapped = [(0, pygame.CONTROLLER_BUTTON_B), (1, pygame.CONTROLLER_BUTTON_Y),
+                  (3, pygame.CONTROLLER_BUTTON_A), (4, pygame.CONTROLLER_BUTTON_X)]
+        for raw_index, button in mapped:
             with self.subTest(raw_index=raw_index):
-                self.raw.buttons = [False] * 4
+                self.raw.buttons = [False] * 5
                 self.raw.buttons[raw_index] = True
                 self.assertTrue(self.pad.get_button(button))
 
@@ -199,9 +199,9 @@ class SpeedlinkPadTests(unittest.TestCase):
         self.assertEqual(self.pad.get_axis(pygame.CONTROLLER_AXIS_LEFTY), 32767)
 
     def test_all_four_buttons_is_pause_gesture(self):
-        self.raw.buttons = [True] * 4
+        self.raw.buttons = [True] * 5
         self.assertTrue(self.pad.get_button(pygame.CONTROLLER_BUTTON_START))
-        self.raw.buttons[2] = False
+        self.raw.buttons[3] = False
         self.assertFalse(self.pad.get_button(pygame.CONTROLLER_BUTTON_START))
 
 

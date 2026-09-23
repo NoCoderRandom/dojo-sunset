@@ -44,14 +44,15 @@ class SpeedlinkPad:
     buttons available instead of trusting that misleading SDL gamepad map.
     """
 
+    PHYSICAL_BUTTONS = (0, 1, 3, 4)
     BUTTON_MAP = {
         # The two large round buttons are the universal menu pair: the left
         # one confirms and the right one goes back.  The smaller buttons keep
         # the remaining attacks available during a match.
         pygame.CONTROLLER_BUTTON_B: 0,  # large right
-        pygame.CONTROLLER_BUTTON_A: 1,  # large left
-        pygame.CONTROLLER_BUTTON_Y: 2,  # small right
-        pygame.CONTROLLER_BUTTON_X: 3,  # small left
+        pygame.CONTROLLER_BUTTON_Y: 1,  # small right
+        pygame.CONTROLLER_BUTTON_A: 3,  # large left
+        pygame.CONTROLLER_BUTTON_X: 4,  # small left
     }
 
     def __init__(self, index):
@@ -67,7 +68,7 @@ class SpeedlinkPad:
         # There is no Start button.  All four fire buttons is a deliberate,
         # hard-to-trigger pause gesture that does not affect system settings.
         if button == pygame.CONTROLLER_BUTTON_START:
-            return all(self.joystick.get_button(index) for index in range(4))
+            return all(self.joystick.get_button(index) for index in self.PHYSICAL_BUTTONS)
         return False
 
     def get_axis(self, axis):
