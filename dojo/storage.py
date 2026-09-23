@@ -5,6 +5,8 @@ import os
 import time
 from pathlib import Path
 
+from .i18n import available_languages
+
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / 'userdata'
 DEFAULTS = {
@@ -18,6 +20,7 @@ DEFAULTS = {
     'rules': 0,
     'controller_p1': 'auto',
     'controller_p2': 'auto',
+    'language': 'auto',
 }
 
 
@@ -56,6 +59,8 @@ class Storage:
         for key in ('controller_p1', 'controller_p2'):
             if self.settings[key] not in ('auto', 'xbox', 'speedlink'):
                 self.settings[key] = 'auto'
+        if self.settings['language'] != 'auto' and self.settings['language'] not in available_languages():
+            self.settings['language'] = 'auto'
         raw = self.read_json('records.json', [])
         self.records = []
         if isinstance(raw, list):

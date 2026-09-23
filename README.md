@@ -9,7 +9,7 @@
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Pygame](https://img.shields.io/badge/Pygame-2.6%2B-2E7D32)](https://www.pygame.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-F2C66D.svg)](LICENSE)
-[![Tests: 180](https://img.shields.io/badge/tests-180%20passing-63D8C1)](TESTRAPPORT.md)
+[![Tests: 191](https://img.shields.io/badge/tests-191%20passing-63D8C1)](TESTRAPPORT.md)
 
 ![Dojo Sunset title screen](docs/screenshots/title.png)
 
@@ -30,6 +30,7 @@ och tunga sumobrottare.
 - Tretton interaktiva lektioner i Teknikskolan
 - Fri träning mot karate-, ninja- och sumomotståndare
 - Egna animationer, partikeleffekter och bearbetade ljudeffekter
+- Svenska och engelska med automatiskt språkval och manuell inställning
 - Rekord, svårighetsgrader, helskärm och två arenalägen
 
 ## Galleri
@@ -57,6 +58,9 @@ Anslut en Xbox-kontroll eller SPEEDLINK Competition Pro USB innan du startar.
 Spelets menyer och fighters styrs med kontroll; tangentbordet används bara för
 `F11` (helskärm) och `F10` (skärmbild). Kontroller väljs under
 **Inställningar → Välj kontroller**.
+Spelet väljer svenska för svensk tangentbordslayout och engelska för engelsk
+layout. Du kan alltid välja **Automatiskt**, **Svenska** eller **English** under
+**Inställningar → Språk**. Japanska karatetermer är oförändrade på båda språken.
 På den ursprungliga Raspberry Pi-installationen kan spelet också startas med
 `./start.sh` eller skrivbordsikonen **Spela Dojo Sunset**.
 
@@ -87,10 +91,10 @@ tillbaka. Håll de två små knapparna samtidigt i en halv sekund för paus. St�
 är helt lokalt i spelet och ändrar inga kontrollinställningar i operativsystemet.
 
 SPEEDLINK visar en egen rörelseguide i spelet. Bland annat görs den roterande
-rundsparken med **spaken utåt + vänster stora knappen**: spelaren till vänster
+rundsparken med **joysticken utåt + vänster stor**: spelaren till vänster
 drar åt vänster och spelaren till höger drar åt höger. Xbox-guiden och dess
 ordinarie RB/LB/LT/RT-mappning visas oförändrad när en Xbox-kontroll används.
-Bakåtkullerbyttan görs på samma sätt med **spaken utåt + höger stora knappen**.
+Bakåtkullerbyttan görs på samma sätt med **joysticken utåt + höger stor**.
 
 Menyer styrs med spak eller styrkors. A bekräftar och B går tillbaka. En
 detaljerad svensk spelguide finns i [SPELGUIDE.md](SPELGUIDE.md).
@@ -129,7 +133,7 @@ Kör ett snabbt grafik- och menyprov:
 python3 main.py --windowed --smoke --mute
 ```
 
-Projektet har 180 automatiserade tester för strid, kontroller, tvåspelarläge,
+Projektet har 191 automatiserade tester för strid, kontroller, språk, tvåspelarläge,
 ljud, lagring, handledning och applikationsflöde. Utförlig information finns i
 [TESTRAPPORT.md](TESTRAPPORT.md).
 

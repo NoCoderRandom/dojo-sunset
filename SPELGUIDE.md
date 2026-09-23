@@ -1,5 +1,13 @@
 # Kom igång med Dojo Sunset
 
+## Språk
+
+Vid första starten läser spelet datorns tangentbordslayout. Svensk layout ger
+svenska och engelsk layout ger engelska. Om layouten inte kan läsas används
+datorns systemspråk. Välj **Automatiskt**, **Svenska** eller **English** under
+**Inställningar → Språk** när du vill ändra det själv. Japanska tekniknamn som
+*kizami zuki*, *gyaku zuki* och *mawashi geri* ändras aldrig.
+
 Starta **Spela Dojo Sunset** på skrivbordet och anslut en Xbox-kontroll eller
 SPEEDLINK Competition Pro USB. Du väljer kontroll för spelare 1 och 2 under
 **Inställningar → Välj kontroller**.
@@ -7,11 +15,11 @@ På SPEEDLINK väljer den vänstra stora knappen i menyer och den högra stora
 knappen går tillbaka.
 
 SPEEDLINK har en egen rörelseguide inne i spelet. Roterande rundspark görs med
-spaken utåt + vänster stora knappen: vänster spelare drar spaken åt vänster och
+joysticken utåt + vänster stor: vänster spelare drar joysticken åt vänster och
 höger spelare åt höger. Håll båda stora för blockering och håll även ner för
 lågt block.
 
-Bakåtkullerbytta görs med spaken utåt + höger stora knappen. På Xbox används
+Bakåtkullerbytta görs med joysticken utåt + höger stor. På Xbox används
 bakåt/utåt + B. Utan riktning ger samma knapp den vanliga framåtkullerbyttan.
 Välj **Träna karate** och sedan teknikskolan för en stegvis introduktion.
 Menyerna styrs med styrkors eller vänster spak; A väljer och B går tillbaka.

@@ -1,9 +1,10 @@
-"""Readable, controller-first Swedish UI at a fixed 1280×720 design size."""
+"""Readable, translated controller-first UI at a fixed 1280×720 design size."""
 import math
 
 import pygame
 
 from .competition import ARCHETYPE_NAMES, OPPONENT_HINTS
+from .i18n import Translator
 from .scenery import PALETTES
 
 INK = (14, 22, 32)
@@ -16,7 +17,7 @@ BLUE = (97, 172, 224)
 
 
 class UI:
-    def __init__(self):
+    def __init__(self, language='auto'):
         pygame.font.init()
         self.surface = pygame.Surface((1280, 720), pygame.SRCALPHA)
         self.fonts = {}
@@ -24,9 +25,17 @@ class UI:
         self.toast = ''
         self.toast_time = 0.0
         self.elapsed = 0.0
+        self.translator = Translator(language)
         for size in (14, 16, 18, 20, 22, 24, 28, 32, 40, 48, 64, 78):
             self.fonts[(size, False)] = pygame.font.SysFont('DejaVu Sans', size)
             self.fonts[(size, True)] = pygame.font.SysFont('DejaVu Sans', size, bold=True)
+
+    def set_language(self, preference):
+        self.translator.set_preference(preference)
+        self.cache.clear()
+
+    def translate(self, value, **fields):
+        return self.translator(str(value), **fields)
 
     def font(self, size, bold=False):
         key = (size, bold)
@@ -35,7 +44,7 @@ class UI:
         return self.fonts[key]
 
     def text(self, text, x, y, size=20, color=PAPER, bold=False, anchor='left'):
-        text = str(text)
+        text = self.translate(text)
         key = (text, size, color, bold)
         if key not in self.cache:
             if len(self.cache) > 700:
@@ -67,6 +76,7 @@ class UI:
                   INK, True, 'center')
 
     def pill(self, text, x, y, color=GOLD):
+        text = self.translate(text)
         width = self.font(14, True).size(text)[0] + 22
         pygame.draw.rect(self.surface, (*color, 28), (x, y, width, 27), border_radius=6)
         self.text(text, x + 11, y + 4, 14, color, True)
@@ -83,9 +93,10 @@ class UI:
 
     def finish(self):
         if self.toast_time > 0:
-            width = min(1140, self.font(18).size(self.toast)[0] + 48)
+            toast = self.translate(self.toast)
+            width = min(1140, self.font(18).size(toast)[0] + 48)
             self.panel((640 - width // 2, 606, width, 48), 245, True)
-            self.text(self.toast, 640, 617, 18, PAPER, anchor='center')
+            self.text(toast, 640, 617, 18, PAPER, anchor='center')
         return self.surface
 
     def footer(self, left='A  Välj', right='B  Tillbaka'):
@@ -193,24 +204,33 @@ class UI:
         clock_text = '∞' if match.practice else f'{math.ceil(match.remaining):02d}'
         self.text(clock_text, 640, 51, 48, PAPER, True, 'center')
         self.text('BÄST AV TRE' if not match.practice else 'FRIA FÖRSÖK', 640, 116, 12, MUTED, anchor='center')
-        self.panel((28, 620, 1224, 82), 214)
+        speedlink_practice = controls.is_speedlink and match.practice
+        self.panel((28, 598 if speedlink_practice else 620,
+                    1224, 104 if speedlink_practice else 82), 214)
         if controls.is_speedlink:
-            actions = [('LV', 'SLAG', BLUE), ('LH', 'RAKT SLAG', GOLD),
-                       ('SV', 'FRONTSPARK', TEAL), ('SH', 'KULLERBYTTA', RED)]
+            actions = [('VÄNSTER LITEN', 'SLAG', BLUE), ('HÖGER LITEN', 'RAKT SLAG', GOLD),
+                       ('VÄNSTER STOR', 'FRONTSPARK', TEAL),
+                       ('HÖGER STOR', 'KULLERBYTTA', RED)]
         else:
             actions = [('X', 'SLAG', BLUE), ('Y', 'RAKT SLAG', GOLD),
                        ('A', 'FRONTSPARK', TEAL), ('B', 'KULLERBYTTA', RED)]
         x = 50
         for button, label, tint in actions:
-            self.button(button, x + 15, 643, tint, True)
-            self.text(label, x + 36, 633, 14, PAPER)
+            if controls.is_speedlink:
+                top = 608 if match.practice else 630
+                self.text(button, x, top, 11, tint, True)
+                self.text(label, x, top + 18, 12, PAPER)
+            else:
+                self.button(button, x + 15, 643, tint, True)
+                self.text(label, x + 36, 633, 14, PAPER)
             x += 193
         if controls.is_speedlink:
             if match.practice:
-                self.text('Stora ihop: BLOCK (↓ lågt)   •   utåt + SV: RUNDSPARK',
-                          810, 633, 12, PAPER)
-                self.text('Utåt+SH bakåtrull • ↓+SH svep • ↑+SH hög • ↑+SV hopp • LH+SH undan • små: paus',
-                          50, 674, 12, MUTED)
+                self.text('Båda stora: block • utåt + vänster stor: rundspark'
+                          ' • utåt + höger stor: bakåtrull', 50, 650, 11, PAPER)
+                self.text('Ner/upp + höger stor: svep/hög spark • upp + vänster stor: hoppspark'
+                          ' • höger liten + höger stor: undan • båda små: paus',
+                          50, 677, 10, MUTED)
             else:
                 self.text('SPEEDLINK • Spela träning för att lära dig alla kombinationer',
                           640, 674, 14, MUTED, anchor='center')
@@ -222,7 +242,7 @@ class UI:
             self.text(xbox_moves, 50, 674, 14, MUTED)
             self.text('Start: paus', 1225, 674, 14, MUTED, anchor='right')
         if match.practice:
-            mode = 'AI PÅ' if match.practice_ai else 'STILLA MOTSTÅNDARE'
+            mode = 'På' if match.practice_ai else 'STILLA MOTSTÅNDARE'
             label = ('AI: ' if controls.is_speedlink else 'BACK: ') + mode
             self.pill(label, 43, 172, TEAL)
         if match.enemy.archetype == 'ninja':
@@ -259,6 +279,8 @@ class UI:
                     self.text(warning, 640, 552, 16, GOLD, True, 'center')
 
     def banner(self, title, subtitle, compact=False):
+        title = self.translate(title)
+        subtitle = self.translate(subtitle)
         size = 28 if compact else 40
         top = 163 if compact else 249
         height = 82 if compact else 128
@@ -297,18 +319,19 @@ class UI:
         if page == 0:
             if speedlink:
                 self.page('DIN SPEEDLINK-JOYSTICK',
-                          'Stor vänster väljer. Stor höger går tillbaka i menyer.')
+                          'Vänster stor väljer. Höger stor går tillbaka i menyer.')
                 rows = [
-                    ('Styrspak', 'Rör dig. Ner: huka. Upp: hoppa.'),
-                    ('Liten vänster', 'Snabbt slag.'),
-                    ('Liten höger', 'Kraftigt rakt slag — gyaku zuki.'),
-                    ('Stor vänster', 'Frontspark — mae geri. Ner ger låg spark.'),
-                    ('Stor höger', 'Kullerbytta. Upp ger hög spark, ner ger svep.'),
-                    ('Utåt + stor höger', 'Bakåtkullerbytta för att skapa avstånd.'),
-                    ('Utåt + stor vänster', 'Rundspark: vänster spelare drar vänster, höger drar höger.'),
-                    ('Upp + stor vänster', 'Hoppspark — tobi geri.'),
+                    ('Joystick', 'Rör dig. Ner: huka. Upp: hoppa.'),
+                    ('Vänster liten', 'Snabbt slag.'),
+                    ('Höger liten', 'Kraftigt rakt slag — gyaku zuki.'),
+                    ('Vänster stor', 'Frontspark — mae geri. Ner ger låg spark.'),
+                    ('Höger stor', 'Kullerbytta. Upp ger hög spark, ner ger svep.'),
+                    ('Utåt + höger stor', 'Bakåtkullerbytta för att skapa avstånd.'),
+                    ('Utåt + vänster stor',
+                     'Rundspark: vänster spelare drar vänster, höger drar höger.'),
+                    ('Upp + vänster stor', 'Hoppspark — tobi geri.'),
                     ('Båda stora', 'Blockera. Håll även ner för lågt block.'),
-                    ('Liten höger + stor höger', 'Undanmanöver bakåt.'),
+                    ('Höger liten + höger stor', 'Undanmanöver bakåt.'),
                     ('Håll båda små', 'Pausmeny — där kan du lämna träningen.'),
                 ]
             else:
@@ -368,7 +391,7 @@ class UI:
                 y = 188 + index * 67
                 self.text(heading, 114, y, 18, GOLD, True)
                 self.text(body, 114, y + 28, 16, PAPER)
-        back = 'Stor höger: tillbaka' if speedlink else 'B / Start: tillbaka'
+        back = 'Höger stor: tillbaka' if speedlink else 'B / Start: tillbaka'
         self.footer(f'← / →  Byt sida   {page + 1} / 3', back)
 
     def options(self, settings, selected):
@@ -382,11 +405,12 @@ class UI:
             ('Spakens dödzon', f"{round(settings['deadzone'] * 100)} %"),
             ('Helskärm', 'På' if settings['fullscreen'] else 'Av'),
             ('Matchregler', 'Klassisk poängkarate' if settings['rules'] == 0 else 'Hälsoduell'),
+            ('language.setting', self.translator.language_label(settings['language'])),
             ('Välj kontroller', 'Öppna'),
             ('Tillbaka', ''),
         ]
         for index, (label, value) in enumerate(rows):
-            y = 179 + index * 48
+            y = 151 + index * 45
             if index == selected:
                 pygame.draw.rect(self.surface, (*GOLD, 38), (103, y - 3, 1073, 45), border_radius=7)
                 self.text('›', 111, y - 4, 28, GOLD, True)
@@ -446,10 +470,12 @@ class UI:
         pygame.draw.circle(self.surface, TEAL,
                            (int(center_x + diagnostic['left_x'] * 87),
                             int(center_y + diagnostic['left_y'] * 87)), 16)
-        self.text('VÄNSTER SPAK', center_x, 490, 16, MUTED, anchor='center')
+        self.text('Joystick' if controls.is_speedlink else 'VÄNSTER SPAK',
+                  center_x, 490, 16, MUTED, anchor='center')
         self.text(f"X {diagnostic['left_x']:+.2f}   Y {diagnostic['left_y']:+.2f}",
                   center_x, 520, 18, PAPER, anchor='center')
-        labels = ({'y': 'LH', 'x': 'LV', 'b': 'SH', 'a': 'SV'}
+        labels = ({'y': 'HÖGER\nLITEN', 'x': 'VÄNSTER\nLITEN',
+                   'b': 'HÖGER\nSTOR', 'a': 'VÄNSTER\nSTOR'}
                   if controls.is_speedlink else
                   {'y': 'Y', 'x': 'X', 'b': 'B', 'a': 'A'})
         positions = [('y', 933, 300, GOLD), ('x', 870, 363, BLUE),
@@ -457,10 +483,14 @@ class UI:
         for name, x, y, tint in positions:
             if name in diagnostic['buttons']:
                 pygame.draw.circle(self.surface, PAPER, (x, y), 30, 3)
-            self.button(labels[name], x, y, tint)
+            if controls.is_speedlink:
+                self.text(labels[name].replace('\n', ' '), x, y - 8, 10, tint, True, 'center')
+            else:
+                self.button(labels[name], x, y, tint)
         if controls.is_speedlink:
-            self.text('LV/LH = små   •   SV/SH = stora', 800, 231, 16, GOLD)
-            self.text('Utåt + SV: rundspark   •   håll LV + LH: paus', 800, 500, 17, PAPER)
+            self.text('Vänster/höger liten • vänster/höger stor', 800, 231, 16, GOLD)
+            self.text('Utåt + vänster stor: rundspark • håll båda små: paus',
+                      800, 500, 16, PAPER)
         else:
             for index, name in enumerate(('lb', 'rb', 'back', 'start')):
                 tint = GOLD if name in diagnostic['buttons'] else MUTED
@@ -468,8 +498,12 @@ class UI:
             self.text(f"LT  {diagnostic['lt']:.2f}        RT  {diagnostic['rt']:.2f}",
                       800, 500, 22, PAPER)
         self.text('Aktiva: ' + ', '.join(diagnostic['buttons']), 115, 575, 16, GOLD)
-        self.text('A: roundkick • B: nunchaku • ↑: rop • ↓: förlust • ←: miss • →: karatehugg',
-                  115, 611, 14, MUTED)
+        sound_guide = ('Vänster liten: lätt träff • höger liten: tung träff'
+                       ' • vänster stor: rundspark • höger stor: nunchaku'
+                       if controls.is_speedlink else
+                       'A: roundkick • B: nunchaku • ↑: rop • ↓: förlust'
+                       ' • ←: miss • →: karatehugg')
+        self.text(sound_guide, 115, 611, 14, MUTED)
         if controls.is_speedlink:
             self.footer('Ljudprov: små och stora knappar', 'Höger stor: tillbaka')
         else:
@@ -567,7 +601,7 @@ class UI:
 
     def versus_ready(self, controls, ready, rules):
         rule = 'Poängmatch' if rules == 0 else 'Hälsoduell'
-        self.page('2 SPELARE', rule + ' • Tryck A på varsin kontroll.')
+        self.page('2 SPELARE', self.translate('versus.ready_rule', rule=rule))
         for index, pad in enumerate(controls):
             x = 110 + index * 550
             self.panel((x, 220, 510, 310), 225)
@@ -587,18 +621,18 @@ class UI:
         lesson = tutorial.lesson
         speedlink_instructions = (
             'Gå åt båda hållen med styrspaken.',
-            'Gå nära och träffa med vänster lilla knappen.',
-            'Träffa med höger lilla knappen.',
-            'Träffa två gånger med vänster stora knappen.',
-            'Tryck höger stora tre gånger för att rulla framåt.',
-            'Dra spaken utåt och tryck höger stora tre gånger för att rulla bakåt.',
-            'Håll ner och tryck höger stora för att svepa undan benen.',
-            'Håll upp och tryck höger stora för en hög spark.',
+            'Gå nära och träffa med vänster liten.',
+            'Träffa med höger liten.',
+            'Träffa två gånger med vänster stor.',
+            'Tryck höger stor tre gånger för att rulla framåt.',
+            'Dra joysticken utåt och tryck höger stor tre gånger för att rulla bakåt.',
+            'Håll ner och tryck höger stor för att svepa undan benen.',
+            'Håll upp och tryck höger stor för en hög spark.',
             'Håll båda stora knapparna för att blockera.',
             'Håll ner och båda stora knapparna för lågt block.',
-            'Håll upp och tryck vänster stora för en hoppspark.',
-            'Dra spaken utåt och tryck vänster stora för en roterande rundspark.',
-            'Tryck höger lilla och höger stora samtidigt för att glida bakåt.',
+            'Håll upp och tryck vänster stor för en hoppspark.',
+            'Dra joysticken utåt och tryck vänster stor för en roterande rundspark.',
+            'Tryck höger liten och höger stor samtidigt för att glida bakåt.',
         )
         instruction = (speedlink_instructions[tutorial.index]
                        if controls.is_speedlink else lesson.instruction)
@@ -610,7 +644,7 @@ class UI:
                      if controls.is_speedlink else 'Back: nästa lektion')
         self.text(next_text, 1222, 238, 12, MUTED, anchor='right')
         if tutorial.lesson_done:
-            prompt = ('Tryck vänster stora för nästa lektion.'
+            prompt = ('Tryck vänster stor för nästa lektion.'
                       if controls.is_speedlink else 'Tryck A för nästa lektion.')
             self.banner('BRA JOBBAT!', prompt)
 

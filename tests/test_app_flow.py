@@ -145,6 +145,15 @@ class ApplicationFlowTests(unittest.TestCase):
         self.assertEqual(self.app.screen, 'game')
         self.assertEqual(self.app.match.player.attacks, 0)
 
+    def test_language_can_be_changed_and_saved_from_settings(self):
+        self.assertEqual(self.app.storage.settings['language'], 'auto')
+        self.app.selected = 8
+        self.app.alter_setting(1)
+        self.assertEqual(self.app.storage.settings['language'], 'en')
+        self.assertEqual(self.app.ui.translator.language, 'en')
+        restored = Storage(Path(self.temporary.name))
+        self.assertEqual(restored.settings['language'], 'en')
+
     def test_background_input_cannot_resume_game_or_change_other_menus(self):
         self.app.arguments.mute = False  # SDL dummy audio: no physical playback.
         self.app.storage.settings['volume'] = .4

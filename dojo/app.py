@@ -10,6 +10,7 @@ import pygame
 from .audio import Audio
 from .competition import ClassicMatch, Tournament, opponent_match
 from .controls import Controls, controller_kind
+from .i18n import available_languages
 from .input_buffer import InputBuffer
 from .model import Command, Fighter, Match, clamp
 from .renderer import Renderer
@@ -46,7 +47,7 @@ class Application:
         self.controls.secondary = self.controls2
         self.apply_controller_preferences(save=False)
         self.audio = Audio(0 if arguments.mute else self.storage.settings['volume'])
-        self.ui = UI()
+        self.ui = UI(self.storage.settings['language'])
         self.clock = pygame.time.Clock()
         self.running = True
         self.screen = 'title'
@@ -235,8 +236,13 @@ class Application:
         elif selected == 7:
             settings['rules'] = 1 - settings['rules']
         elif selected == 8:
-            self.open_screen('controller_select', 'options')
+            languages = ['auto', *available_languages()]
+            current = languages.index(settings['language'])
+            settings['language'] = languages[(current + direction) % len(languages)]
+            self.ui.set_language(settings['language'])
         elif selected == 9:
+            self.open_screen('controller_select', 'options')
+        elif selected == 10:
             self.go_back()
         self.audio.play('menu')
         if not self.storage.save_settings():
@@ -248,7 +254,7 @@ class Application:
             return
         step = self.controls.menu_step()
         if step:
-            self.selected = (self.selected + step) % 10
+            self.selected = (self.selected + step) % 11
             self.audio.play('menu')
         if self.controls.hit('left'):
             self.alter_setting(-1)
@@ -276,7 +282,7 @@ class Application:
             required = preferences.count(kind)
             if available.count(kind) < required:
                 if save:
-                    self.ui.notify(f'Inte tillräckligt många {kind.upper()}-kontroller är anslutna.', 5)
+                    self.ui.notify(self.ui.translate('controls.not_enough', kind=kind.upper()), 5)
                 return False
         for controls, kind in zip((self.controls, self.controls2), preferences, strict=True):
             controls.close_pad()

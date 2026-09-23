@@ -24,6 +24,11 @@ utan testverktygen. Grafik och kod är egen; ljudkällorna finns i CREDITS.md.
 
 ## Nya kontrollfall
 
+Språkproven kontrollerar svensk och engelsk tangentbordslayout, manuell
+åsidosättning, sparat språkval, kompletta språkfiler, dynamiska matchtexter och
+att de japanska tekniknamnen förblir oförändrade. Svenska och engelska menyer har
+även renderats med riktig OpenGL för visuell granskning.
+
 Spelaren kan inte starta vapen- eller sumoattacker. Karateresan har två karate-,
 två ninja- och två sumomatcher. Stjärnorna har flygtid, livslängd, ammunition och
 kastpaus. Hukning, blockering, undanmanöver och avbrutet kast testas, liksom att
