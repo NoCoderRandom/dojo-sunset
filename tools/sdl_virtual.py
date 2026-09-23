@@ -5,14 +5,31 @@ cannot reorder RetroArch's devices, add udev rules, or send input to the desktop
 """
 import ctypes
 import ctypes.util
+from pathlib import Path
 
 import pygame
 
 
+def load_sdl():
+    """Load the same SDL build Pygame uses, including manylinux wheels."""
+    library = ctypes.util.find_library('SDL2-2.0')
+    if library:
+        candidate = ctypes.CDLL(library)
+        if hasattr(candidate, 'SDL_JoystickAttachVirtual'):
+            return candidate
+    package_root = Path(pygame.__file__).resolve().parent.parent
+    bundled = tuple((package_root / 'pygame.libs').glob('libSDL2*.so*'))
+    bundled += tuple((package_root / 'pygame' / '.libs').glob('libSDL2*.so*'))
+    for path in bundled:
+        candidate = ctypes.CDLL(str(path))
+        if hasattr(candidate, 'SDL_JoystickAttachVirtual'):
+            return candidate
+    raise RuntimeError('Pygame SDL library does not provide virtual controllers')
+
+
 class VirtualPad:
     def __init__(self):
-        library = ctypes.util.find_library('SDL2-2.0')
-        self.sdl = ctypes.CDLL(library)
+        self.sdl = load_sdl()
         self.sdl.SDL_JoystickAttachVirtual.argtypes = [ctypes.c_int] * 4
         self.sdl.SDL_JoystickAttachVirtual.restype = ctypes.c_int
         self.sdl.SDL_JoystickDetachVirtual.argtypes = [ctypes.c_int]
