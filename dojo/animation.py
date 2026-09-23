@@ -477,7 +477,7 @@ def sample(fighter, clock):
         if fighter.elapsed < .12:
             result = blend(BASE, tucked, fighter.elapsed / .12)
         elif fighter.elapsed < .64:
-            turn = (fighter.elapsed - .12) / .52 * math.tau
+            turn = (fighter.elapsed - .12) / .52 * math.tau * fighter.roll_direction
             cosine, sine = math.cos(turn), math.sin(turn)
             result = {name: (x * cosine + (y - .55) * sine,
                              .55 - x * sine + (y - .55) * cosine, z)

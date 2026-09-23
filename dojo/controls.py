@@ -5,7 +5,7 @@ import pygame
 from pygame._sdl2 import controller
 
 from .elite_input import ElitePad, find_elite
-from .model import Command
+from .model import Command, RollDirection
 
 BUTTONS = {
     'a': pygame.CONTROLLER_BUTTON_A,
@@ -350,7 +350,9 @@ class Controls:
             elif result.crouch:
                 result.attack = 'sweep'
             else:
-                result.roll = True
+                result.roll = (RollDirection.BACKWARD
+                               if self.down(self.outward_direction)
+                               else RollDirection.FORWARD)
         elif self.hit('rb'):
             result.attack = 'sweep' if result.crouch else 'spin_kick'
         elif self.hit('power'):

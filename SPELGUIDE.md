@@ -10,6 +10,9 @@ SPEEDLINK har en egen rörelseguide inne i spelet. Roterande rundspark görs med
 spaken utåt + vänster stora knappen: vänster spelare drar spaken åt vänster och
 höger spelare åt höger. Håll båda stora för blockering och håll även ner för
 lågt block.
+
+Bakåtkullerbytta görs med spaken utåt + höger stora knappen. På Xbox används
+bakåt/utåt + B. Utan riktning ger samma knapp den vanliga framåtkullerbyttan.
 Välj **Träna karate** och sedan teknikskolan för en stegvis introduktion.
 Menyerna styrs med styrkors eller vänster spak; A väljer och B går tillbaka.
 

@@ -9,7 +9,7 @@
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Pygame](https://img.shields.io/badge/Pygame-2.6%2B-2E7D32)](https://www.pygame.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-F2C66D.svg)](LICENSE)
-[![Tests: 168](https://img.shields.io/badge/tests-168%20passing-63D8C1)](TESTRAPPORT.md)
+[![Tests: 173](https://img.shields.io/badge/tests-173%20passing-63D8C1)](TESTRAPPORT.md)
 
 ![Dojo Sunset title screen](docs/screenshots/title.png)
 
@@ -27,7 +27,7 @@ och tunga sumobrottare.
 - Klassisk poängkarate och hälsodueller
 - Karateresan med sex motståndare: karate, ninja och sumo
 - Lokal tvåspelare med Xbox-kontroller eller SPEEDLINK Competition Pro USB
-- Tolv interaktiva lektioner i Teknikskolan
+- Tretton interaktiva lektioner i Teknikskolan
 - Fri träning mot karate-, ninja- och sumomotståndare
 - Egna animationer, partikeleffekter och bearbetade ljudeffekter
 - Rekord, svårighetsgrader, helskärm och två arenalägen
@@ -71,7 +71,7 @@ OpenGL-drivrutin.
 | X | Snabbt slag; ner + X eller Y ger hukslag |
 | Y | Kraftigare rakt slag |
 | A | Frontspark; ner + A ger låg spark |
-| B | Kullerbytta framåt |
+| B | Kullerbytta framåt; bakåt/utåt + B ger bakåtkullerbytta |
 | Upp + B | Hög spark |
 | Ner + B eller ner + RB | Lågt svep / ashi barai |
 | RB | Roterande rundspark |
@@ -90,6 +90,7 @@ SPEEDLINK visar en egen rörelseguide i spelet. Bland annat görs den roterande
 rundsparken med **spaken utåt + vänster stora knappen**: spelaren till vänster
 drar åt vänster och spelaren till höger drar åt höger. Xbox-guiden och dess
 ordinarie RB/LB/LT/RT-mappning visas oförändrad när en Xbox-kontroll används.
+Bakåtkullerbyttan görs på samma sätt med **spaken utåt + höger stora knappen**.
 
 Menyer styrs med spak eller styrkors. A bekräftar och B går tillbaka. En
 detaljerad svensk spelguide finns i [SPELGUIDE.md](SPELGUIDE.md).
@@ -111,7 +112,7 @@ rekordtabellen.
 ### Träning och Teknikskolan
 
 Träningsläget saknar tidsgräns och låter dig slå av eller på motståndarens
-AI. Teknikskolan innehåller tolv praktiska lektioner som kontrollerar att varje
+AI. Teknikskolan innehåller tretton praktiska lektioner som kontrollerar att varje
 rörelse utförs korrekt.
 
 ## Utveckling
@@ -128,7 +129,7 @@ Kör ett snabbt grafik- och menyprov:
 python3 main.py --windowed --smoke --mute
 ```
 
-Projektet har 168 automatiserade tester för strid, kontroller, tvåspelarläge,
+Projektet har 173 automatiserade tester för strid, kontroller, tvåspelarläge,
 ljud, lagring, handledning och applikationsflöde. Utförlig information finns i
 [TESTRAPPORT.md](TESTRAPPORT.md).
 

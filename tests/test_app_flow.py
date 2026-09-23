@@ -18,6 +18,7 @@ import pygame
 
 from dojo.app import Application
 from dojo.storage import Storage
+from dojo.tutorial import LESSONS
 from tools.sdl_virtual import VirtualPad
 
 
@@ -71,12 +72,12 @@ class ApplicationFlowTests(unittest.TestCase):
         self.pad.axis(4, -1)
         self.pad.axis(5, -1)
 
-    def test_all_twelve_lessons_completed_with_real_controller_commands(self):
+    def test_all_lessons_completed_with_real_controller_commands(self):
         self.app.start_tutorial()
         techniques = {'jab': 2, 'cross': 3, 'front_kick': 0, 'round_kick': 1,
                       'sweep': 1, 'high_kick': 1, 'spin_kick': 10}
         completed = []
-        for index in range(12):
+        for index in range(len(LESSONS)):
             tutorial = self.app.tutorial
             self.assertEqual(tutorial.index, index)
             lesson = tutorial.lesson
@@ -89,6 +90,9 @@ class ApplicationFlowTests(unittest.TestCase):
                     self.pad.button(12, lesson.goal == 'block_low')
                 elif frame % 90 == 0:
                     if lesson.goal == 'roll':
+                        self.pad.button(1, True)
+                    elif lesson.goal == 'back_roll':
+                        self.pad.button(13, True)
                         self.pad.button(1, True)
                     elif lesson.goal == 'dodge':
                         self.pad.axis(4, 1)
@@ -106,14 +110,14 @@ class ApplicationFlowTests(unittest.TestCase):
             self.neutral()
             self.frame(30)
             self.tap(0)
-        self.assertEqual(len(completed), 12)
+        self.assertEqual(len(completed), len(LESSONS))
         self.assertEqual(self.app.screen, 'title')
         self.assertIsNone(self.app.tutorial)
         self.assertEqual(self.app.storage.records, [])
 
     def test_skip_final_lesson_returns_to_title(self):
         self.app.start_tutorial()
-        for _ in range(12):
+        for _ in range(len(LESSONS)):
             self.tap(4)
         self.assertEqual(self.app.screen, 'title')
         self.assertIsNone(self.app.match)

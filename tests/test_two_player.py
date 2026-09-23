@@ -14,7 +14,7 @@ import pygame
 from dojo.app import PLAY_ENTRIES, Application
 from dojo.competition import ClassicMatch
 from dojo.elite_input import ElitePad
-from dojo.model import Command, Match
+from dojo.model import Command, Match, RollDirection
 from dojo.storage import Storage
 from tools.sdl_virtual import VirtualPad
 
@@ -72,6 +72,20 @@ class TwoPlayerTests(unittest.TestCase):
             self.frame()
         self.assertEqual(self.app.match.player.move_key, 'jab')
         self.assertEqual(self.app.match.enemy.move_key, 'spin_kick')
+
+    def test_both_players_can_roll_backward_away_from_the_centre(self):
+        self.start()
+        self.pads[0].button(13, True)  # Player 1 outward: left.
+        self.pads[0].button(1, True)
+        self.pads[1].button(14, True)  # Player 2 outward: right.
+        self.pads[1].button(1, True)
+        self.frame()
+        self.assertEqual(self.app.match.player.state, 'roll')
+        self.assertEqual(self.app.match.enemy.state, 'roll')
+        self.assertEqual(self.app.match.player.roll_direction, RollDirection.BACKWARD)
+        self.assertEqual(self.app.match.enemy.roll_direction, RollDirection.BACKWARD)
+        self.assertLess(self.app.match.player.roll_facing, 0)
+        self.assertGreater(self.app.match.enemy.roll_facing, 0)
 
     def test_second_player_brief_press_is_buffered(self):
         self.start()

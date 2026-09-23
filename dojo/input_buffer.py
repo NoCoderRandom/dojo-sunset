@@ -1,5 +1,5 @@
 """A short action buffer makes near-recovery button presses responsive."""
-from .model import Command
+from .model import Command, RollDirection
 
 
 class InputBuffer:
@@ -12,7 +12,7 @@ class InputBuffer:
         self.attack_crouch = False
         self.jump = False
         self.dodge = False
-        self.roll = False
+        self.roll = RollDirection.NONE
         self.expiry = -1.0
 
     def offer(self, command, now):
@@ -23,7 +23,7 @@ class InputBuffer:
             self.expiry = now + self.window
         elif command.roll:
             self.clear()
-            self.roll = True
+            self.roll = command.roll
             self.expiry = now + self.window
         elif command.dodge:
             self.clear()

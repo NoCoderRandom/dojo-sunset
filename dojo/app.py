@@ -23,7 +23,7 @@ RESULT_ENTRIES = ['Spela igen', 'Träna karate', 'Till huvudmenyn']
 PLAY_ENTRIES = ['1 spelare — Karateresan', '1 spelare — Poängmatch mot CPU',
                 '1 spelare — Hälsoduell mot CPU', '2 spelare — Poängmatch',
                 '2 spelare — Hälsoduell', 'Tillbaka']
-TRAIN_ENTRIES = ['Fri träning — karate', 'Teknikskola — tolv lektioner', 'Kontrolltest',
+TRAIN_ENTRIES = ['Fri träning — karate', 'Teknikskola — tretton lektioner', 'Kontrolltest',
                  'Träna mot ninja', 'Träna mot sumo', 'Tillbaka']
 CONTROLLER_KINDS = ['auto', 'xbox', 'speedlink']
 

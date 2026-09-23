@@ -34,7 +34,7 @@ class TutorialTests(unittest.TestCase):
 
     def test_high_block_lesson_is_achievable(self):
         tutorial = Tutorial()
-        tutorial.index = 7
+        tutorial.index = 8
         tutorial.setup_lesson()
         for _step in range(120 * 12):
             tutorial.update(1 / 120, Command(guard=True))
@@ -44,7 +44,7 @@ class TutorialTests(unittest.TestCase):
 
     def test_low_block_lesson_is_achievable(self):
         tutorial = Tutorial()
-        tutorial.index = 8
+        tutorial.index = 9
         tutorial.setup_lesson()
         for _step in range(120 * 12):
             tutorial.update(1 / 120, Command(guard=True, crouch=True))
@@ -54,7 +54,7 @@ class TutorialTests(unittest.TestCase):
 
     def test_wrong_block_does_not_complete_sweep_defense(self):
         tutorial = Tutorial()
-        tutorial.index = 8
+        tutorial.index = 9
         tutorial.setup_lesson()
         for _step in range(120 * 8):
             tutorial.update(1 / 120, Command(guard=True))
@@ -71,7 +71,7 @@ class TutorialTests(unittest.TestCase):
 
     def test_dodge_lesson_is_achievable(self):
         tutorial = Tutorial()
-        tutorial.index = 11
+        tutorial.index = 12
         tutorial.setup_lesson()
         for _step in range(120 * 5):
             tutorial.update(1 / 120, Command(dodge=True))
@@ -80,12 +80,12 @@ class TutorialTests(unittest.TestCase):
         self.assertTrue(tutorial.lesson_done)
 
     def test_wrong_blocks_do_not_leave_the_student_out_of_range(self):
-        for index in (7, 8):
+        for index in (8, 9):
             with self.subTest(lesson=index):
                 tutorial = Tutorial()
                 tutorial.index = index
                 tutorial.setup_lesson()
-                correct_crouch = index == 8
+                correct_crouch = index == 9
                 for _ in range(120 * 8):
                     tutorial.update(1 / 120, Command(guard=True, crouch=not correct_crouch))
                 self.assertEqual(tutorial.progress, 0)

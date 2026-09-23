@@ -2,6 +2,7 @@
 import math
 import random
 from dataclasses import dataclass
+from enum import IntEnum
 
 
 def clamp(value, low, high):
@@ -61,6 +62,12 @@ MOVES = {
 }
 
 
+class RollDirection(IntEnum):
+    BACKWARD = -1
+    NONE = 0
+    FORWARD = 1
+
+
 @dataclass
 class Command:
     move: float = 0.0
@@ -69,7 +76,7 @@ class Command:
     attack: str = ''
     jump: bool = False
     dodge: bool = False
-    roll: bool = False
+    roll: RollDirection = RollDirection.NONE
 
 
 @dataclass
@@ -104,6 +111,7 @@ class Fighter:
     stars: int = 0
     star_cooldown: float = 0.0
     roll_facing: int = 1
+    roll_direction: RollDirection = RollDirection.FORWARD
 
     @property
     def walk_speed(self):
@@ -221,7 +229,8 @@ class Fighter:
         self.guard = command.guard
         if command.roll and self.stamina >= 26:
             self.state = 'roll'
-            self.roll_facing = self.facing
+            self.roll_direction = RollDirection(command.roll)
+            self.roll_facing = self.facing * self.roll_direction
             self.elapsed = 0.0
             self.stamina -= 26
             self.guard = False

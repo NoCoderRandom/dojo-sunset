@@ -1,7 +1,7 @@
 """Guided karate lessons with observable goals and safe reset positions."""
 from dataclasses import dataclass
 
-from .model import Match
+from .model import Match, RollDirection
 
 
 @dataclass(frozen=True)
@@ -36,31 +36,35 @@ LESSONS = (
            'Tryck B tre gånger för att rulla framåt.',
            'Du duckar under höga attacker mitt i rullningen. Låga sparkar träffar.',
            'roll', required=3, distance=3.0),
-    Lesson('06 • LEGSWEEP',
+    Lesson('06 • BAKÅTKULLERBYTTA',
+           'Håll bakåt och tryck B tre gånger.',
+           'Rulla bort från motståndaren för att snabbt skapa avstånd.',
+           'back_roll', required=3, distance=2.0),
+    Lesson('07 • LEGSWEEP',
            'Håll ner och tryck B eller RB för att svepa undan benen.',
            'Svepet går under ett stående block.',
            'hit', 'sweep', required=3, distance=1.4),
-    Lesson('07 • HÖG SPARK',
+    Lesson('08 • HÖG SPARK',
            'Håll upp och tryck B för en hög spark.',
            'Tryck riktning och spark tillsammans, innan hoppet börjar.',
            'hit', 'high_kick', required=2, distance=1.5),
-    Lesson('08 • SKYDDA ÖVERKROPPEN',
+    Lesson('09 • SKYDDA ÖVERKROPPEN',
            'Håll LB och blockera motståndarens frontsparkar.',
            'Stående block skyddar huvudet och kroppen.',
            'block_high', required=3, distance=1.25),
-    Lesson('09 • SKYDDA BENEN',
+    Lesson('10 • SKYDDA BENEN',
            'Håll ner + LB och blockera legsweep.',
            'Lågt block skyddar benen. Vanligt block gör det inte.',
            'block_low', required=3, distance=1.3),
-    Lesson('10 • HOPPSPARK',
+    Lesson('11 • HOPPSPARK',
            'Tryck RT och träffa med tobi geri.',
            'En kraftig teknik som kostar mycket uthållighet.',
            'hit', 'jump_kick', required=2, distance=1.5),
-    Lesson('11 • ROTERANDE RUNDSPARK',
+    Lesson('12 • ROTERANDE RUNDSPARK',
            'Träffa med RB utan att hålla ner.',
            'Lång räckvidd, men lång förberedelse och återhämtning.',
            'hit', 'spin_kick', required=2, distance=1.65),
-    Lesson('12 • UNDAN OCH TILLBAKA',
+    Lesson('13 • UNDAN OCH TILLBAKA',
            'Använd LT tre gånger för att glida bakåt.',
            'Undanmanövern har ett kort fönster där du inte kan träffas.',
            'dodge', required=3, distance=2.0),
@@ -213,8 +217,11 @@ class Tutorial:
             self.observe_hits(fighter)
         elif goal in ('block_high', 'block_low'):
             self.observe_blocks(fighter)
-        elif goal == 'roll':
-            if fighter.state == 'roll' and self.last_state != 'roll':
+        elif goal in ('roll', 'back_roll'):
+            expected = (RollDirection.BACKWARD if goal == 'back_roll'
+                        else RollDirection.FORWARD)
+            if (fighter.state == 'roll' and self.last_state != 'roll'
+                    and fighter.roll_direction == expected):
                 self.progress += 1
             self.last_state = fighter.state
         elif goal == 'dodge':

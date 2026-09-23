@@ -209,15 +209,17 @@ class UI:
             if match.practice:
                 self.text('Stora ihop: BLOCK (↓ lågt)   •   utåt + SV: RUNDSPARK',
                           810, 633, 12, PAPER)
-                self.text('↓+SH svep  •  ↑+SH hög  •  ↑+SV hopp  •  LH+SH undan  •  små ihop: paus',
+                self.text('Utåt+SH bakåtrull • ↓+SH svep • ↑+SH hög • ↑+SV hopp • LH+SH undan • små: paus',
                           50, 674, 12, MUTED)
             else:
                 self.text('SPEEDLINK • Spela träning för att lära dig alla kombinationer',
                           640, 674, 14, MUTED, anchor='center')
         else:
             self.text('LB  BLOCK     RB  RUNDSPARK', 845, 633, 14, PAPER)
-            self.text('Ner + B / RB: LEGSWEEP     Upp + B: HÖG SPARK     RT: HOPPSPARK',
-                      50, 674, 14, MUTED)
+            xbox_moves = ('Bakåt+B: BAKÅTRULL   Ner+B/RB: SVEP   Upp+B: HÖG   RT: HOPPSPARK'
+                          if match.practice else
+                          'Ner + B / RB: LEGSWEEP     Upp + B: HÖG SPARK     RT: HOPPSPARK')
+            self.text(xbox_moves, 50, 674, 14, MUTED)
             self.text('Start: paus', 1225, 674, 14, MUTED, anchor='right')
         if match.practice:
             mode = 'AI PÅ' if match.practice_ai else 'STILLA MOTSTÅNDARE'
@@ -300,6 +302,7 @@ class UI:
                     ('Liten höger', 'Kraftigt rakt slag — gyaku zuki.'),
                     ('Stor vänster', 'Frontspark — mae geri. Ner ger låg spark.'),
                     ('Stor höger', 'Kullerbytta. Upp ger hög spark, ner ger svep.'),
+                    ('Utåt + stor höger', 'Bakåtkullerbytta för att skapa avstånd.'),
                     ('Utåt + stor vänster', 'Rundspark: vänster spelare drar vänster, höger drar höger.'),
                     ('Upp + stor vänster', 'Hoppspark — tobi geri.'),
                     ('Båda stora', 'Blockera. Håll även ner för lågt block.'),
@@ -314,6 +317,7 @@ class UI:
                     ('Y', 'Kraftigt rakt slag — gyaku zuki'),
                     ('A', 'Frontspark — mae geri. Ner + A: låg spark.'),
                     ('B', 'Kullerbytta framåt — snabb undanmanöver'),
+                    ('Bakåt + B', 'Bakåtkullerbytta för att skapa avstånd.'),
                     ('Upp + B', 'Hög spark — jodan geri'),
                     ('Ner + B eller Ner + RB', 'Legsweep — ashi barai'),
                     ('RB / RT', 'RB: roterande rundspark. RT: hoppspark.'),
@@ -529,7 +533,7 @@ class UI:
             descriptions = [
                 ('FRI TRÄNING', 'Öva alla tekniker utan tidsgräns.',
                  'Växla mellan stilla motståndare och AI med Back.'),
-                ('TEKNIKSKOLA', 'Tolv korta, praktiska lektioner.',
+                ('TEKNIKSKOLA', 'Tretton korta, praktiska lektioner.',
                  'Rörelse, slag, sparkar, kullerbytta och försvar.'),
                 ('KONTROLLTEST', 'Kontrollera knappar, spakar och triggers.',
                  'Prova också dina importerade ljudeffekter.'),
@@ -587,6 +591,7 @@ class UI:
             'Träffa med höger lilla knappen.',
             'Träffa två gånger med vänster stora knappen.',
             'Tryck höger stora tre gånger för att rulla framåt.',
+            'Dra spaken utåt och tryck höger stora tre gånger för att rulla bakåt.',
             'Håll ner och tryck höger stora för att svepa undan benen.',
             'Håll upp och tryck höger stora för en hög spark.',
             'Håll båda stora knapparna för att blockera.',

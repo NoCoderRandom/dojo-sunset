@@ -8,6 +8,7 @@ import unittest
 import pygame
 
 from dojo.controls import Controls, SpeedlinkPad
+from dojo.model import RollDirection
 from dojo.storage import DEFAULTS
 from tools.sdl_virtual import VirtualPad
 
@@ -214,6 +215,18 @@ class ControllerTests(unittest.TestCase):
         raw.buttons[1] = True
         self.controls.poll(.016, [])
         self.assertTrue(self.controls.command().dodge)
+
+    def test_speedlink_outward_and_large_right_selects_backward_roll(self):
+        self.controls.close_pad()
+        raw = FakeCompetitionPro()
+        pad = SpeedlinkPad.__new__(SpeedlinkPad)
+        pad.joystick = raw
+        self.controls.pad = pad
+        self.controls.joystick = raw
+        raw.axes[0] = -1
+        raw.buttons[0] = True
+        self.controls.poll(.016, [])
+        self.assertEqual(self.controls.command().roll, RollDirection.BACKWARD)
 
 
 class FakeCompetitionPro:
