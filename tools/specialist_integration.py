@@ -59,9 +59,9 @@ class SpecialistRun(IntegrationRun):
         match = self.app.match
         match.player.x = -.8
         match.enemy.x = .8
-        self.tap(1)
+        self.tap(10)
         self.frame(14)
-        self.check(match.player.move_key == 'round_kick', 'Xbox B remains player roundkick')
+        self.check(match.player.move_key == 'spin_kick', 'Xbox RB produces the spinning roundkick')
         self.check(self.sounds['round_swing'] > 0, 'Roundkick dispatches supplied swing audio')
         self.frame(60)
         self.pad.button(12, True)
