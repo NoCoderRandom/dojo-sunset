@@ -248,7 +248,9 @@ class UI:
             enemy = match.enemy
             if enemy.attacking and enemy.elapsed < enemy.move.startup:
                 warnings = {'shuriken': 'KASTSTJÄRNA — HUKA ELLER BLOCKERA',
-                            'nunchaku': 'NUNCHAKU — HUKA ELLER BLOCKERA',
+                            'nunchaku': 'NUNCHAKU SIDOSLAG — HUKA ELLER BLOCKERA',
+                            'nunchaku_overhead': 'NUNCHAKU ÖVERHUVUD — HUKA ELLER BLOCKERA',
+                            'nunchaku_low': 'NUNCHAKU LÅGT — HOPPA ELLER BLOCKERA LÅGT',
                             'sumo_stomp': 'STAMP — HOPPA ELLER BLOCKERA LÅGT',
                             'sumo_charge': 'RUSNING — BACKA ELLER UNDVIK'}
                 warning = warnings.get(enemy.move_key)
@@ -356,9 +358,7 @@ class UI:
             tips = [
                 ('ETAPP 1–2: KARATE', 'Klassiska poängmatcher. Två hela poäng vinner en rond.'),
                 ('ETAPP 3–4: NINJA',
-                 ('Huka under nunchaku och stjärnor, eller håll båda stora.'
-                  if speedlink else
-                  'Hälsoduell. Huka under nunchaku och stjärnor, eller håll LB.')),
+                 'Huka under höga vapen; hoppa eller blockera lågt vid svepet.'),
                 ('FYRA KASTSTJÄRNOR', 'Ninjan laddar kastet synligt och har fyra stjärnor per rond.'),
                 ('ETAPP 5–6: SUMO', 'Tung motståndare. Hoppa över stampen och kontra efter rusningen.'),
                 ('ÖVA FÖRST', 'Träna mot ninja eller sumo direkt från träningsmenyn.'),

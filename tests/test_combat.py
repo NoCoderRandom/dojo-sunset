@@ -7,7 +7,7 @@ from dojo.model import MOVES, Brain, Command, Fighter, Match
 
 class CombatTests(unittest.TestCase):
     def allow_specialist(self, fighter, key):
-        if key in ('nunchaku', 'shuriken'):
+        if key.startswith('nunchaku') or key == 'shuriken':
             fighter.set_archetype('ninja')
         elif key.startswith('sumo_'):
             fighter.set_archetype('sumo')
@@ -50,7 +50,7 @@ class CombatTests(unittest.TestCase):
                 hits = [time for event, time in events if event == 'hit']
                 self.assertEqual(len(swings), 1)
                 self.assertEqual(len(hits), 1)
-                swing_time = .06 if key == 'nunchaku' else move.startup * .55
+                swing_time = .06 if key.startswith('nunchaku') else move.startup * .55
                 self.assertAlmostEqual(swings[0], swing_time, delta=.009)
                 self.assertAlmostEqual(hits[0], move.startup, delta=.009)
                 self.assertLess(swings[0], hits[0])

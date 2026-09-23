@@ -53,7 +53,11 @@ MOVES = {
     'sweep': Move('sweep', 'ASHI BARAI', .30, .14, .45, 1.70, 18, 23, 'low', .42, 250),
     'spin_kick': Move('spin_kick', 'ROTERANDE RUNDSPARK', .43, .15, .43, 1.92, 27, 32, 'mid', .50, 350, .20),
     'jump_kick': Move('jump_kick', 'TOBI GERI', .36, .17, .44, 1.80, 24, 29, 'high', .45, 300, .46, True),
-    'nunchaku': Move('nunchaku', 'NUNCHAKU', .44, .16, .48, 2.02, 19, 26, 'high', .30, 250),
+    'nunchaku': Move('nunchaku', 'NUNCHAKU • SIDOSLAG', .38, .16, .42, 2.02, 19, 24, 'high', .30, 250),
+    'nunchaku_overhead': Move('nunchaku_overhead', 'NUNCHAKU • ÖVERHUVUDSSLAG',
+                               .48, .17, .46, 1.94, 22, 28, 'high', .36, 300),
+    'nunchaku_low': Move('nunchaku_low', 'NUNCHAKU • LÅG SVEPNING',
+                          .35, .17, .43, 1.88, 17, 23, 'low', .27, 250),
     'shuriken': Move('shuriken', 'KASTSTJÄRNA', .48, .04, .49, 6.8, 12, 20, 'high', .12, 150,
                      projectile=True),
     'sumo_palm': Move('sumo_palm', 'SUMO • HANDFLATA', .34, .16, .43, 1.52, 24, 24, 'mid', .55, 250),
@@ -77,6 +81,7 @@ class Command:
     jump: bool = False
     dodge: bool = False
     roll: RollDirection = RollDirection.NONE
+    flourish: bool = False
 
 
 @dataclass
@@ -160,7 +165,7 @@ class Fighter:
         move = MOVES.get(key)
         if not move or not self.can_act or self.stamina < move.cost:
             return False
-        if key in ('nunchaku', 'shuriken') and self.archetype != 'ninja':
+        if (key.startswith('nunchaku') or key == 'shuriken') and self.archetype != 'ninja':
             return False
         if key.startswith('sumo_') and self.archetype != 'sumo':
             return False
@@ -211,8 +216,9 @@ class Fighter:
                 self.state = 'idle'
                 self.move_key = ''
                 self.elapsed = 0.0
-        elif self.state in ('hurt', 'knockdown', 'dodge', 'jump', 'roll'):
-            durations = {'hurt': .34, 'knockdown': 1.0, 'dodge': .34, 'jump': .70, 'roll': .80}
+        elif self.state in ('hurt', 'knockdown', 'dodge', 'jump', 'roll', 'flourish'):
+            durations = {'hurt': .34, 'knockdown': 1.0, 'dodge': .34, 'jump': .70,
+                         'roll': .80, 'flourish': 1.15}
             if self.state == 'roll':
                 previous = max(0, self.elapsed - dt)
                 travel = max(0, min(self.elapsed, .65) - max(previous, .10))
@@ -246,6 +252,11 @@ class Fighter:
                 key = 'sweep'
             if self.start_attack(key):
                 return
+        if command.flourish and self.archetype == 'ninja':
+            self.state = 'flourish'
+            self.elapsed = 0.0
+            self.guard = False
+            return
         if command.jump and self.stamina >= 12:
             self.state = 'jump'
             self.elapsed = 0.0
@@ -299,8 +310,30 @@ class Brain:
         self.wait = .5
         self.intent = Command()
         self.style = self.random.choice(('counter', 'pressure', 'balanced'))
+        self.player_last_x = None
+        self.player_passive_time = 0.0
+        self.player_approach_grace = 0.0
+
+    def observe_player(self, dt, fighter, player):
+        """Track passivity from player motion, independent of the ninja's motion."""
+        if self.player_last_x is None:
+            approaching = False
+        else:
+            player_delta = player.x - self.player_last_x
+            approaching = player_delta * -fighter.facing > dt * .12
+        self.player_last_x = player.x
+        if approaching:
+            self.player_approach_grace = .55
+        else:
+            self.player_approach_grace = max(0.0, self.player_approach_grace - dt)
+        passive_state = player.state in ('idle', 'crouch', 'guard')
+        if passive_state and self.player_approach_grace <= 0:
+            self.player_passive_time += dt
+        else:
+            self.player_passive_time = 0.0
 
     def update(self, dt, fighter, enemy):
+        self.observe_player(dt, fighter, enemy)
         self.wait -= dt
         if self.wait > 0:
             return Command(move=self.intent.move, guard=self.intent.guard,
@@ -332,10 +365,17 @@ class Brain:
                 command.guard = True
         elif (fighter.archetype == 'ninja' and 2.25 < distance < 6.0
               and fighter.stars > 0 and fighter.star_cooldown <= 0
+              and self.player_passive_time >= (1.05, .80, .60)[self.difficulty]
               and self.random.random() < .55):
             command.attack = 'shuriken'
-        elif fighter.archetype == 'ninja' and 1.25 < distance < 2.02 and self.random.random() < .45:
-            command.attack = 'nunchaku'
+            self.player_passive_time = 0.0
+        elif fighter.archetype == 'ninja' and 1.15 < distance < 2.02 and self.random.random() < .52:
+            choices = ['nunchaku', 'nunchaku_overhead']
+            if distance < MOVES['nunchaku_low'].reach:
+                choices.append('nunchaku_low')
+            command.attack = self.random.choice(choices)
+        elif fighter.archetype == 'ninja' and distance > 2.5 and self.random.random() < .13:
+            command.flourish = True
         elif distance > 1.65:
             command.move = toward * self.random.uniform(.55, 1.0)
             if distance < 2.15 and self.random.random() < .18:
@@ -433,7 +473,7 @@ class Match:
             return
         damage = move.damage * (.80 if defender.archetype == 'sumo' else 1.0)
         defender.health = max(0.0, defender.health - damage)
-        if defender.move_key == 'nunchaku':
+        if defender.move_key.startswith('nunchaku') or defender.state == 'flourish':
             self.emit('nunchaku_stop')
         defender.guard = False
         defender.crouch = False
@@ -457,7 +497,7 @@ class Match:
         self.last_impact_damage = damage
         self.last_impact_move = move.key
         self.emit('hit')
-        if move.key in ('nunchaku', 'sumo_palm'):
+        if move.key.startswith('nunchaku') or move.key == 'sumo_palm':
             self.emit('hit_chop')
         else:
             self.emit('hit_heavy' if damage >= 18 else 'hit_light')
@@ -572,10 +612,10 @@ class Match:
         for fighter, old, previous_time in zip((self.player, self.enemy), old_states, old_elapsed, strict=True):
             if fighter.attacking and old == 'attack':
                 swing_start = fighter.move.startup * .55
-                if fighter.move_key == 'nunchaku':
+                if fighter.move_key.startswith('nunchaku'):
                     swing_start = .06
                 if previous_time < swing_start <= fighter.elapsed:
-                    if fighter.move_key == 'nunchaku':
+                    if fighter.move_key.startswith('nunchaku'):
                         self.emit('nunchaku_spin')
                     elif 'kick' in fighter.move_key or fighter.move_key == 'sweep':
                         self.emit('round_swing')
@@ -593,6 +633,10 @@ class Match:
                 if (previous_time < active_end <= fighter.elapsed and not fighter.landed
                         and not fighter.move.projectile):
                     self.emit('miss')
+            if fighter.state == 'flourish' and old != 'flourish':
+                self.emit('nunchaku_spin')
+            elif old == 'flourish' and fighter.state != 'flourish':
+                self.emit('nunchaku_stop')
             fighter.x = clamp(fighter.x, -4.5, 4.5)
         gap = self.enemy.x - self.player.x
         min_gap = self.player.body_radius + self.enemy.body_radius

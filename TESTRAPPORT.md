@@ -30,9 +30,11 @@ kastpaus. Hukning, blockering, undanmanöver och avbrutet kast testas, liksom at
 projektilerna försvinner mellan ronder. Träningen fyller på övningsstjärnor;
 vanliga matcher behåller gränsen fyra per rond.
 
-Nunchaku kan undvikas med hukning. Sumon är långsammare, tål mer och trycks
-undan mindre. Stampen kan hoppas över. Roundkick återgår genom böjt knä.
-Samtliga nya poser och vapensegment har ändliga koordinater.
+Nunchakuns höga slag kan undvikas med hukning; den låga svepningen kräver lågt
+block eller hopp. Kaststjärnor kräver en passiv spelare som inte närmar sig.
+Sumon är långsammare, tål mer och trycks undan mindre. Stampen kan hoppas över.
+Roundkick återgår genom böjt knä. Samtliga nya poser och vapensegment har
+ändliga koordinater.
 
 De grafiska proven använder processlokal SDL-kontroll och riktig OpenGL:
 träningsval, B-roundkick, ner+B-legsweep, AI av/på, pausad stjärna, hjälpsidor,

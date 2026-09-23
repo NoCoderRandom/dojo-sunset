@@ -188,7 +188,7 @@ OPPONENTS = (
 ARCHETYPE_NAMES = {'karate': 'KARATE', 'ninja': 'NINJA', 'sumo': 'SUMO'}
 OPPONENT_HINTS = {
     'karate': 'Två poäng vinner ronden. Hitta avståndet för en ren träff.',
-    'ninja': 'Huka under kaststjärnor och nunchaku, eller blockera stående.',
+    'ninja': 'Huka under höga vapen; hoppa eller blockera lågt vid svepet.',
     'sumo': 'Hoppa över stampen. Backa undan rusningen och kontra.',
 }
 

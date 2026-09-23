@@ -17,28 +17,45 @@ from OpenGL.GL import (
 
 
 def nunchaku_points(fighter, hand):
-    first_angle = -math.pi / 2
-    second_angle = -math.pi / 2
-    if fighter.attacking and fighter.move_key == 'nunchaku':
+    # The hand sits near the chain, not on the butt of the held stick.  This
+    # keeps the weapon controllable and prevents the old upside-down grip.
+    first_angle = math.pi / 2
+    second_angle = -1.35
+    if fighter.state == 'flourish':
+        phase = fighter.elapsed * math.tau * 2.6
+        first_angle = 1.15 + math.sin(phase) * .50
+        second_angle = -.35 + math.sin(phase * 2) * 1.30
+    elif fighter.attacking and fighter.move_key.startswith('nunchaku'):
         move = fighter.move
+        if fighter.move_key == 'nunchaku_overhead':
+            chamber = (1.02, -2.10)
+            contact = (-.38, -.92)
+        elif fighter.move_key == 'nunchaku_low':
+            chamber = (2.35, 2.70)
+            contact = (.10, -.30)
+        else:
+            chamber = (1.70, -2.30)
+            contact = (.10, -.08)
         if fighter.elapsed < move.startup:
             amount = fighter.elapsed / move.startup
-            first_angle *= 1 - amount
-            second_angle = (1 - amount) * math.tau * 2
+            first_angle = chamber[0] + (contact[0] - chamber[0]) * amount
+            second_angle = chamber[1] + (contact[1] - chamber[1]) * amount
         elif fighter.elapsed < move.startup + move.active:
-            first_angle = -.08
-            second_angle = -.04
+            first_angle, second_angle = contact
         else:
             amount = min(1, (fighter.elapsed - move.startup - move.active) / move.recovery)
-            first_angle *= amount
-            second_angle *= amount
-    tip = (hand[0] + math.cos(first_angle) * .40,
-           hand[1] + math.sin(first_angle) * .40, hand[2])
+            first_angle = contact[0] + (math.pi / 2 - contact[0]) * amount
+            second_angle = contact[1] + (-1.35 - contact[1]) * amount
+    direction = (math.cos(first_angle), math.sin(first_angle), 0)
+    grip = (hand[0] - direction[0] * .30,
+            hand[1] - direction[1] * .30, hand[2])
+    tip = (hand[0] + direction[0] * .10,
+           hand[1] + direction[1] * .10, hand[2])
     chain = (tip[0] + math.cos(second_angle) * .12,
              tip[1] + math.sin(second_angle) * .12, tip[2])
     end = (chain[0] + math.cos(second_angle) * .44,
            chain[1] + math.sin(second_angle) * .44, chain[2])
-    return hand, tip, chain, end
+    return grip, tip, chain, end
 
 
 def draw_nunchaku(meshes, fighter, hand):

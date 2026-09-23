@@ -5,6 +5,7 @@ os.environ.setdefault('PYGAME_HIDE_SUPPORT_PROMPT', '1')
 import json
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import pygame
@@ -21,6 +22,7 @@ def main():
     pygame.display.init()
     renderer = Renderer(dict(DEFAULTS, fullscreen=False))
     ui = UI()
+    controls = SimpleNamespace(is_speedlink=False)
     out = ROOT / 'userdata' / 'ninja-gallery'
     out.mkdir(exist_ok=True)
     frames = []
@@ -31,6 +33,9 @@ def main():
         ('ninja-ready', 'ninja', '', 0),
         ('nunchaku-windup', 'ninja', 'nunchaku', .45),
         ('nunchaku-contact', 'ninja', 'nunchaku', 1.08),
+        ('nunchaku-overhead', 'ninja', 'nunchaku_overhead', 1.08),
+        ('nunchaku-low', 'ninja', 'nunchaku_low', 1.08),
+        ('nunchaku-flourish', 'ninja', 'flourish', 0),
         ('star-windup', 'ninja', 'shuriken', .75),
         ('star-flight', 'ninja', '', 0),
         ('sumo-ready', 'sumo', '', 0),
@@ -45,7 +50,11 @@ def main():
             match.phase = 'fight'
             match.player.x = -.90
             match.enemy.x = .90
-            if move:
+            if move == 'flourish':
+                match.enemy.state = 'flourish'
+                match.enemy.elapsed = .48
+                match.last_technique = 'NUNCHAKU • UPPVISNING'
+            elif move:
                 actor = match.player if kind == 'karate' else match.enemy
                 assert actor.start_attack(move)
                 actor.elapsed = MOVES[move].startup * phase
@@ -59,7 +68,7 @@ def main():
             renderer.camera_target = 0
             renderer.draw_world([match.player, match.enemy], 1 + index * .02, match)
             ui.begin(.016)
-            ui.hud(match, None)
+            ui.hud(match, controls)
             renderer.draw_hud(ui.finish())
             renderer.screenshot(out / (name + '.png'))
             renderer.present()
@@ -73,14 +82,14 @@ def main():
             match = tournament.start_stage()
             renderer.draw_world([match.player, match.enemy], 2 + stage * .1, match)
             ui.begin(.016)
-            ui.hud(match, None)
+            ui.hud(match, controls)
             ui.tournament_badge(tournament)
             renderer.draw_hud(ui.finish())
             renderer.screenshot(out / f'chapter-{stage + 1}.png')
             renderer.present()
             pygame.event.pump()
         ui.begin(.016)
-        ui.help(2)
+        ui.help(2, controls)
         renderer.draw_world([match.player, match.enemy], 3, match)
         renderer.draw_hud(ui.finish())
         renderer.screenshot(out / 'opponent-help.png')

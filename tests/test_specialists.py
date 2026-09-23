@@ -32,7 +32,8 @@ class SpecialistTests(unittest.TestCase):
 
     def test_player_cannot_use_ninja_or_sumo_attacks(self):
         fighter = Fighter('BRUCE PI', 0, 1, (1, 1, 1))
-        for key in ('nunchaku', 'shuriken', 'sumo_palm', 'sumo_stomp', 'sumo_charge'):
+        for key in ('nunchaku', 'nunchaku_overhead', 'nunchaku_low', 'shuriken',
+                    'sumo_palm', 'sumo_stomp', 'sumo_charge'):
             self.assertFalse(fighter.start_attack(key), key)
         self.assertEqual(fighter.stamina, 100)
         self.assertEqual(fighter.attacks, 0)
@@ -201,6 +202,28 @@ class SpecialistTests(unittest.TestCase):
         self.assertIn('hit_chop', match.events)
         self.assertNotIn('nunchaku_spin', match.events)
 
+    def test_low_nunchaku_needs_a_low_guard(self):
+        standing = self.encounter()
+        standing.player.x = 0
+        standing.enemy.x = 1.7
+        standing.player.guard = True
+        standing.player.state = 'guard'
+        standing.enemy.start_attack('nunchaku_low')
+        standing.enemy.elapsed = MOVES['nunchaku_low'].startup + .01
+        standing.resolve(standing.enemy, standing.player)
+        self.assertLess(standing.player.health, 100)
+
+        low = self.encounter()
+        low.player.x = 0
+        low.enemy.x = 1.7
+        low.player.guard = True
+        low.player.crouch = True
+        low.player.state = 'guard'
+        low.enemy.start_attack('nunchaku_low')
+        low.enemy.elapsed = MOVES['nunchaku_low'].startup + .01
+        low.resolve(low.enemy, low.player)
+        self.assertEqual(low.player.health, 100)
+
     def test_nunchaku_sound_starts_with_motion_and_stops_on_interrupt(self):
         match = self.encounter()
         match.enemy.start_attack('nunchaku')
@@ -255,7 +278,7 @@ class SpecialistTests(unittest.TestCase):
         self.assertEqual(match.player.health, 100)
 
     def test_all_new_poses_and_weapon_segments_are_finite(self):
-        for kind, moves in [('ninja', ('nunchaku', 'shuriken')),
+        for kind, moves in [('ninja', ('nunchaku', 'nunchaku_overhead', 'nunchaku_low', 'shuriken')),
                             ('sumo', ('sumo_palm', 'sumo_stomp', 'sumo_charge'))]:
             for key in moves:
                 fighter = self.encounter(kind).enemy
@@ -290,6 +313,78 @@ class SpecialistTests(unittest.TestCase):
                 brain.wait = 0
                 chosen.add(brain.update(.01, match.enemy, match.player).attack)
             self.assertIn(expected, chosen)
+
+    def test_ninja_ai_uses_all_three_nunchaku_attacks(self):
+        match = self.encounter('ninja')
+        match.player.x = 0
+        match.enemy.x = 1.7
+        brain = Brain(1, 37)
+        chosen = set()
+        for _ in range(250):
+            brain.wait = 0
+            attack = brain.update(.01, match.enemy, match.player).attack
+            if attack.startswith('nunchaku'):
+                chosen.add(attack)
+        self.assertEqual(chosen, {'nunchaku', 'nunchaku_overhead', 'nunchaku_low'})
+
+    def test_ninja_throws_stars_only_after_player_stays_passive(self):
+        match = self.encounter('ninja')
+        match.player.x = 0
+        match.enemy.x = 3
+        brain = Brain(1, 9)
+        brain.random.random = lambda: 0.0
+        for _ in range(79):
+            brain.wait = 0
+            self.assertNotEqual(brain.update(.01, match.enemy, match.player).attack, 'shuriken')
+        brain.wait = 0
+        self.assertEqual(brain.update(.01, match.enemy, match.player).attack, 'shuriken')
+
+    def test_approaching_player_cancels_ninja_star_setup(self):
+        match = self.encounter('ninja')
+        match.player.x = 0
+        match.enemy.x = 3
+        brain = Brain(1, 9)
+        brain.random.random = lambda: 0.0
+        for _ in range(100):
+            match.player.x += .004
+            brain.wait = 0
+            self.assertNotEqual(brain.update(.01, match.enemy, match.player).attack, 'shuriken')
+        self.assertEqual(brain.player_passive_time, 0)
+
+    def test_active_player_cannot_trigger_ninja_star(self):
+        match = self.encounter('ninja')
+        match.player.x = 0
+        match.enemy.x = 3
+        match.player.state = 'attack'
+        match.player.move_key = 'jab'
+        brain = Brain(1, 9)
+        brain.random.random = lambda: 0.0
+        for _ in range(120):
+            brain.wait = 0
+            self.assertNotEqual(brain.update(.01, match.enemy, match.player).attack, 'shuriken')
+
+    def test_distant_ninja_can_flourish_without_attacking(self):
+        match = self.encounter('ninja')
+        match.player.x = 0
+        match.enemy.x = 3
+        brain = Brain(1, 9)
+        brain.random.random = lambda: 0.0
+        brain.wait = 0
+        command = brain.update(.01, match.enemy, match.player)
+        self.assertTrue(command.flourish)
+        self.assertFalse(command.attack)
+        match.enemy.tick(.01, command)
+        self.assertEqual(match.enemy.state, 'flourish')
+
+    def test_flourish_is_harmless_and_stops_its_sound(self):
+        match = self.encounter('ninja')
+        match.enemy.state = 'flourish'
+        match.enemy.elapsed = 1.14
+        health = match.player.health
+        match.update(.02, Command())
+        self.assertEqual(match.player.health, health)
+        self.assertEqual(match.enemy.state, 'idle')
+        self.assertIn('nunchaku_stop', match.events)
 
 
 if __name__ == '__main__':

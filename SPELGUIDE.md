@@ -72,9 +72,12 @@ Bruce Pi slåss alltid obeväpnad och får inga vapen.
 
 **Ninja:** håll ner för att huka under kaststjärnan. LB stående kan blockera
 den, men det kostar uthållighet. Varje ninja har fyra stjärnor per rond och
-måste vänta mellan kasten. Nunchaku är också en hög attack som går att huka
-under. Vänta ut svingen och svara med din egen spark. Ninjan kan även använda
-vanliga slag och låga sparkar, så en ständig hukning skyddar inte mot allt.
+måste vänta mellan kasten. Han kastar dem bara när du har varit passiv och inte
+går mot honom. Nunchakun har sidoslag och överhuvudsslag som går att huka under,
+men även en låg svepning som kräver hopp eller lågt block. På långt avstånd kan
+han göra en ofarlig uppvisningssnurr. Vänta ut svingen och svara med din egen
+spark. Ninjan kan även använda vanliga slag och låga sparkar, så en ständig
+hukning skyddar inte mot allt.
 
 **Sumo:** han tål mer och trycks inte undan lika lätt. Håll lite avstånd,
 hoppa när han förbereder stampen eller blockera lågt med ner + LB.

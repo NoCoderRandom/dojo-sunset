@@ -9,7 +9,7 @@
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Pygame](https://img.shields.io/badge/Pygame-2.6%2B-2E7D32)](https://www.pygame.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-F2C66D.svg)](LICENSE)
-[![Tests: 173](https://img.shields.io/badge/tests-173%20passing-63D8C1)](TESTRAPPORT.md)
+[![Tests: 180](https://img.shields.io/badge/tests-180%20passing-63D8C1)](TESTRAPPORT.md)
 
 ![Dojo Sunset title screen](docs/screenshots/title.png)
 
@@ -129,7 +129,7 @@ Kör ett snabbt grafik- och menyprov:
 python3 main.py --windowed --smoke --mute
 ```
 
-Projektet har 173 automatiserade tester för strid, kontroller, tvåspelarläge,
+Projektet har 180 automatiserade tester för strid, kontroller, tvåspelarläge,
 ljud, lagring, handledning och applikationsflöde. Utförlig information finns i
 [TESTRAPPORT.md](TESTRAPPORT.md).
 

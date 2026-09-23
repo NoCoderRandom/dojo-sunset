@@ -329,6 +329,31 @@ NUNCHAKU_CONTACT = dict(JAB_CONTACT,
     elbow_front=(.59, 1.58, .18),
     hand_back=(.07, 1.65, -.19),
 )
+NUNCHAKU_OVERHEAD_CHAMBER = pose(
+    hip=(-.08, 1.00, 0), chest=(-.16, 1.47, 0),
+    shoulder_front=(-.10, 1.62, .22), elbow_front=(.04, 1.93, .25),
+    hand_front=(.30, 2.13, .21), hand_back=(.26, 1.68, -.19),
+)
+NUNCHAKU_OVERHEAD_CONTACT = pose(
+    hip=(.10, .98, 0), chest=(.19, 1.43, 0), head=(.24, 1.94, 0),
+    shoulder_front=(.22, 1.59, .18), elbow_front=(.61, 1.73, .17),
+    hand_front=(.92, 1.91, .14), hand_back=(.10, 1.54, -.22),
+)
+NUNCHAKU_LOW_CHAMBER = dict(CROUCH,
+    hip=(-.06, .76, 0), chest=(-.14, 1.19, 0), neck=(-.15, 1.47, 0), head=(-.14, 1.69, 0),
+    shoulder_front=(-.10, 1.34, .23), elbow_front=(-.20, 1.12, .28),
+    hand_front=(.10, 1.07, .27), hand_back=(.26, 1.37, -.20),
+)
+NUNCHAKU_LOW_CONTACT = dict(CROUCH,
+    hip=(.04, .72, 0), chest=(.18, 1.12, 0), neck=(.23, 1.39, 0), head=(.25, 1.61, 0),
+    shoulder_front=(.20, 1.27, .20), elbow_front=(.59, 1.05, .19),
+    hand_front=(.98, .83, .16), hand_back=(.09, 1.29, -.23),
+)
+NUNCHAKU_FLOURISH = pose(
+    chest=(-.04, 1.48, 0), shoulder_front=(.02, 1.63, .22),
+    elbow_front=(.31, 1.43, .27), hand_front=(.51, 1.60, .24),
+    hand_back=(.24, 1.72, -.18),
+)
 STAR_CHAMBER = pose(
     hand_front=(-.04, 1.88, .29),
     elbow_front=(-.25, 1.54, .32),
@@ -393,6 +418,8 @@ CROUCH_PUNCH_CONTACT = dict(CROUCH,
 
 CLIPS = {
     'nunchaku': (NUNCHAKU_CHAMBER, NUNCHAKU_CONTACT),
+    'nunchaku_overhead': (NUNCHAKU_OVERHEAD_CHAMBER, NUNCHAKU_OVERHEAD_CONTACT),
+    'nunchaku_low': (NUNCHAKU_LOW_CHAMBER, NUNCHAKU_LOW_CONTACT),
     'shuriken': (STAR_CHAMBER, STAR_RELEASE),
     'sumo_palm': (SUMO_PALM_WINDUP, SUMO_PALM_CONTACT),
     'sumo_stomp': (SUMO_STOMP_WINDUP, SUMO_STOMP_CONTACT),
@@ -463,6 +490,13 @@ def sample(fighter, clock):
                     result = blend(windup, rest, (recovery - .48) / .52)
             else:
                 result = blend(contact, rest, recovery)
+    elif fighter.state == 'flourish':
+        # A showy figure-eight: the wrist leads while the body stays ready.
+        wave = math.sin(fighter.elapsed * math.tau * 2.6)
+        amount = min(1.0, fighter.elapsed / .18, (1.15 - fighter.elapsed) / .18)
+        result = blend(BASE, NUNCHAKU_FLOURISH, amount)
+        hand = result['hand_front']
+        result['hand_front'] = (hand[0] + wave * .08, hand[1] + math.cos(fighter.elapsed * math.tau * 2.6) * .06, hand[2])
     elif fighter.state == 'roll':
         # A tucked forward somersault: rotate all joints together around the
         # body's centre so the head, hips and bent legs visibly turn over.
