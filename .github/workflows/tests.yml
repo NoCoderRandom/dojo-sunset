@@ -11,16 +11,17 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: pip
+      - uses: actions/checkout@v5
       - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-dri libglu1-mesa
+        run: >-
+          sudo apt-get update && sudo apt-get install -y
+          python3-venv python3-setuptools python3-pygame python3-numpy python3-opengl
+          xvfb libgl1-mesa-dri libglu1-mesa
       - name: Install Dojo Sunset
-        run: python -m pip install -e .
+        run: |
+          python3 -m venv --system-site-packages .ci-venv
+          .ci-venv/bin/python -m pip install -e . --no-deps --no-build-isolation
       - name: Run tests
         env:
           SDL_AUDIODRIVER: dummy
-        run: xvfb-run -a python -m unittest discover -s tests -v
+        run: xvfb-run -a .ci-venv/bin/python -m unittest discover -s tests -v
